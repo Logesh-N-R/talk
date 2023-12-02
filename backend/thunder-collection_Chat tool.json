@@ -1,0 +1,218 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Chat tool",
+    "dateExported": "2023-12-02T17:28:53.180Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "4f21f463-ace6-4689-81ff-7f75a59d5200",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "login",
+            "url": "http://localhost:4000/logIn",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-12-02T13:19:32.470Z",
+            "modified": "2023-12-02T17:20:11.581Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\":\"queen@123.com\",\n  \"password\":\"Loki@123\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "a3033cf8-d926-41b6-995c-141eb3707bde",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "all user",
+            "url": "http://localhost:4000/allUser",
+            "method": "POST",
+            "sortNum": 15000,
+            "created": "2023-12-02T13:49:40.957Z",
+            "modified": "2023-12-02T15:59:52.266Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"search\":\"\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "6b4821a3-9caa-4852-8309-baefcbb5dab0",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "all rooms",
+            "url": "http://localhost:4000/getTalks",
+            "method": "POST",
+            "sortNum": 16250,
+            "created": "2023-12-02T15:33:14.320Z",
+            "modified": "2023-12-02T16:45:08.532Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "f0cf542c-3aa8-4b45-8441-2031049484a1",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "new grup ",
+            "url": "http://localhost:4000/startRoomGrp",
+            "method": "POST",
+            "sortNum": 16875,
+            "created": "2023-12-02T15:45:48.462Z",
+            "modified": "2023-12-02T16:00:30.507Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"users\":[\"656b381c7a5ab3c01eb6d567\",\"656b53d6fb84856b26073b9b\",\"656b53e7fb84856b26073ba1\"],\n  \"name\":\"First Room\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "1604810e-154c-4e27-83ff-740ea0a290c7",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "rename group",
+            "url": "http://localhost:4000/renameGrp",
+            "method": "POST",
+            "sortNum": 17187.5,
+            "created": "2023-12-02T16:03:44.189Z",
+            "modified": "2023-12-02T16:11:43.306Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"roomId\":\"656b549dab3e51c175f4e606\",\n  \"name\":\"First Room Changed\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "8a6962f9-9be3-45ad-8303-f142d0fe5300",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "send message",
+            "url": "http://localhost:4000/sendTalk",
+            "method": "POST",
+            "sortNum": 17265.7,
+            "created": "2023-12-02T16:52:21.214Z",
+            "modified": "2023-12-02T17:25:14.730Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"roomId\":\"656b549dab3e51c175f4e606\",\n  \"content\":\"Fourth Message\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "5afb18e2-924b-48e2-bebe-10cb09da321f",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "get all messages",
+            "url": "http://localhost:4000/getMsg",
+            "method": "POST",
+            "sortNum": 17304.8,
+            "created": "2023-12-02T17:09:48.864Z",
+            "modified": "2023-12-02T17:28:32.810Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"roomId\":\"656b4908ff51d8a0562dd2ca\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "cf181542-e691-4ac6-ac3d-aef28cdcdd6b",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "add member in group",
+            "url": "http://localhost:4000/addUser",
+            "method": "POST",
+            "sortNum": 17343.8,
+            "created": "2023-12-02T16:13:20.668Z",
+            "modified": "2023-12-02T16:35:15.330Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"roomId\":\"656b549dab3e51c175f4e606\",\n  \"userId\":\"656b53e0fb84856b26073b9e\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "a380b8eb-2ac7-4599-a41e-e31ce1a5db33",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "remove member from group",
+            "url": "http://localhost:4000/removeUser",
+            "method": "POST",
+            "sortNum": 17421.9,
+            "created": "2023-12-02T16:38:47.760Z",
+            "modified": "2023-12-02T16:39:21.498Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"roomId\":\"656b549dab3e51c175f4e606\",\n  \"userId\":\"656b53e0fb84856b26073b9e\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "2315268a-16ed-435a-9cac-96191ebd153a",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "private get messages",
+            "url": "http://localhost:4000/oOOmsg",
+            "method": "POST",
+            "sortNum": 17500,
+            "created": "2023-12-02T14:30:24.040Z",
+            "modified": "2023-12-02T15:00:38.514Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "\n{\n  \"userId\":\"656b381c7a5ab3c01eb6d567\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "768ecb7b-e081-434a-894d-c896b679f0b7",
+            "colId": "69175e9d-cbae-45fe-942e-7a3713ae1029",
+            "containerId": "",
+            "name": "signup",
+            "url": "http://localhost:4000/signUp",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-12-02T13:22:58.979Z",
+            "modified": "2023-12-02T15:57:28.174Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"username\":\"Pawn\",\n  \"email\":\"pawn@123.com\",\n  \"password\":\"Loki@123\"\n}",
+                "form": []
+            },
+            "tests": []
+        }
+    ]
+}

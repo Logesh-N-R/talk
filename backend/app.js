@@ -8,9 +8,8 @@ const services = {
     auth: "/auth",
     allUser: "/allUser",
     startRoomOOO: "/startRoomOOO",
-    oOOmsg: "/oOOmsg",
     startRoomGrp: "/startRoomGrp",
-    grpMsg: "/grpMsg",
+    getMsg: "/getMsg",
     renameGrp: "/renameGrp",
     addUser: "/addUser",
     removeUser: "/removeUser",
@@ -184,7 +183,6 @@ app.post(services.signUp, async (req, res) => {
             msg: `Nice to meet you, ${username}...`
         })
 })
-
 // Login process
 app.post(services.logIn, async (req, res) => {
     req.body.email = req.body.email.toLowerCase();
@@ -241,7 +239,7 @@ app.post('/allUser', requireAuth, async (req, res) => {
 app.post('/getTalks', requireAuth, async (req, res) => {
     try {
         RoomModel.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
-            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg")
+            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg").sort({updatedAt:-1})
             .then(async (result) => {
                 result = await UserModel.populate(result, {
                     path: "latestMsg.messageFrom",
@@ -289,14 +287,10 @@ app.post('/startRoomGrp', requireAuth, async (req, res) => {
         throw new Error(error.message)
     }
 })
-// get group messages 
-app.post('/grpMsg', requireAuth, async (req, res) => {
-
-})
 // rename group 
 app.post('/renameGrp', requireAuth, async (req, res) => {
-    const {roomId,name} = req.body;
-    if(!name){
+    const { roomId, name } = req.body;
+    if (!name) {
         return res.json({
             status: "success",
             data: "Please enter valid name"
@@ -305,80 +299,76 @@ app.post('/renameGrp', requireAuth, async (req, res) => {
     const UpdatedRoom = await RoomModel.findByIdAndUpdate(
         roomId,
         {
-            roomName:name
+            roomName: name
         },
         {
-            new:true
+            new: true
         }
     )
-    .populate("users","-password")
-    .populate("grpAdmin","-password")
+        .populate("users", "-password")
+        .populate("grpAdmin", "-password")
 
-    if(!UpdatedRoom){
+    if (!UpdatedRoom) {
         throw new Error("Room Not Found!")
-    }else{
+    } else {
         return res.json({
             status: "success",
-            data:UpdatedRoom
-        })  
+            data: UpdatedRoom
+        })
     }
 })
 // add user to group 
 app.post('/addUser', requireAuth, async (req, res) => {
-    const {roomId,userId}=req.body;
+    const { roomId, userId } = req.body;
     const isUserAlreadyExist = await RoomModel.find({
-        _id:  roomId, 
-        users:{$elemMatch:{$eq:userId}}
+        _id: roomId,
+        users: { $elemMatch: { $eq: userId } }
     })
-    if(isUserAlreadyExist.length<=0){
-        const added = await RoomModel.findByIdAndUpdate(roomId,{$push:{users:userId}},{new:true}).populate("users","-password").populate("grpAdmin","-password")
-    
-        if(!added){
+    if (isUserAlreadyExist.length <= 0) {
+        const added = await RoomModel.findByIdAndUpdate(roomId, { $push: { users: userId } }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
+
+        if (!added) {
             throw new Error("Room Not Found!")
-        }else{
+        } else {
             return res.json({
                 status: "success",
-                data:added
-            })  
+                data: added
+            })
         }
-    }else{
+    } else {
         return res.json({
             status: "success",
-            data:"user already in group"
-        })  
+            data: "user already in group"
+        })
     }
 })
 // remove user from group 
 app.post('/removeUser', requireAuth, async (req, res) => {
-    const {roomId,userId}=req.body;
+    const { roomId, userId } = req.body;
     const isUserAlreadyExist = await RoomModel.find({
-        _id:  roomId, 
-        users:{$elemMatch:{$eq:userId}}
+        _id: roomId,
+        users: { $elemMatch: { $eq: userId } }
     })
-    if(isUserAlreadyExist.length>0){
-        const removed = await RoomModel.findByIdAndUpdate(roomId,{$pull:{users:userId}},{new:true}).populate("users","-password").populate("grpAdmin","-password")
-    
-        if(!removed){
+    if (isUserAlreadyExist.length > 0) {
+        const removed = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: userId } }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
+
+        if (!removed) {
             throw new Error("Room Not Found!")
-        }else{
+        } else {
             return res.json({
                 status: "success",
-                data:removed
-            })  
+                data: removed
+            })
         }
-    }else{
+    } else {
         return res.json({
             status: "success",
-            data:"user not in group"
-        })  
+            data: "user not in group"
+        })
     }
 })
-// start one on one 
+// set one on one room
 app.post('/startRoomOOO', requireAuth, async (req, res) => {
-
-})
-// get one on one messages
-app.post('/oOOmsg', requireAuth, async (req, res) => {
     const { userId } = req.body;
     const { user } = req.session;
     if (mongoose.Types.ObjectId.isValid(userId)) {
@@ -431,9 +421,69 @@ app.post('/oOOmsg', requireAuth, async (req, res) => {
             })
     }
 })
+// get one on one messages
+app.post('/getMsg', requireAuth, async (req, res) => {
+    const {roomId} = req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id: roomId,
+        users: { $elemMatch: { $eq: req.session.user._id } }
+    })
+    console.log(isUserAlreadyExist)
+    if (isUserAlreadyExist.length > 0) {
 
+        try{
+            const getMessage = await MessageModel.find({room:roomId}).populate('messageFrom','username profile email').populate('room')
+            res.json({
+                status: "success",
+                data: getMessage
+            })
+        }catch(error){
+            throw new Error(error.message)
+        }
+    }else{
+        res.json({
+            status: "success",
+            data: "Group unavailable!"
+        }) 
+    }
+
+})
 // sendtalk
 app.post('/sendTalk', requireAuth, async (req, res) => {
+    const { roomId, content } = req.body
+    if (!roomId || !content) {
+        return res.json(
+            {
+                status: "success",
+                data: "Empty input sent"
+            })
+    }
+    var newMessage = {
+        messageFrom: req.session.user._id,
+        room: roomId,
+        message: content
+    }
+    try {
+        var message = await MessageModel.create(newMessage);
+        message = await message.populate("messageFrom", "username profile");
+        message = await message.populate("room");
+        message = await UserModel.populate(message, {
+            path: 'rooms.users',
+            select: 'username profile email'
+        });
+
+        await RoomModel.findByIdAndUpdate(roomId, {
+            latestMsg: message
+        })
+        res.json(
+            {
+                status: "success",
+                data: message
+            })
+
+    } catch (error) {
+        throw new Error(error.message)
+    }
 
 })
 // API req ends
