@@ -4,31 +4,31 @@ const Schema = mongoose.Schema;
 const roomSchema = new Schema({
     roomName: {
         type: String,
+        trim:true
     },
-    roomType: {
-        type: String,
-        enum: ['group','private'],
-        default:"private",
-        required: true
+    isGrp: {
+        type: Boolean,
+        default:false
     },
-    createdBy: {
-        type: String,
-        required: true
+    users:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        },
+    ],
+    latestMsg:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Message"
     },
-    members:{
-      type:[{type:String}],
-      required:true
+    grpAmin: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
     roomStatus: {
         type: String,
         enum: ['active','inactive'],
         default:"active",
         required: true
-    },
-    roomId: {
-        type: String,
-        default:new mongoose.Types.ObjectId,
-        unique: true
     },
 }, { timestamps: true });
 

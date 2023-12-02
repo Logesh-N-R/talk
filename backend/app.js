@@ -3,18 +3,19 @@ require('dotenv').config()
 const services = {
     // url for encryption of path
     // https://emn178.github.io/online-tools/sha256.html
-    signUp: "/844c62b1fbf4d74286afab7e8af47a026bdb1647cbe8730b0466b2ee6ad75a43",
-    logIn: "/2708d0932454740f522d2d58dfd3ff0021fa0d6abcf4a4653d141874cedfdde1",
+    signUp: "/signUp",
+    logIn: "/logIn",
     auth: "/auth",
+    allUser: "/allUser",
     startRoomOOO: "/startRoomOOO",
-    oOOmsg:"/oOOmsg",
+    oOOmsg: "/oOOmsg",
     startRoomGrp: "/startRoomGrp",
     grpMsg: "/grpMsg",
     renameGrp: "/renameGrp",
     addUser: "/addUser",
     removeUser: "/removeUser",
-    getTalks:"/getTalks",
-    sendTalk:"/sendTalk"
+    getTalks: "/getTalks",
+    sendTalk: "/sendTalk"
 
 }
 const express = require('express');
@@ -54,7 +55,7 @@ function decrypter(encryptedData, base64Data) {
 
 // Models import starts
 const UserModel = require("./models/User");
-const ChatModel = require("./models/Chat");
+const MessageModel = require("./models/Message");
 const RoomModel = require("./models/Room");
 // Models import ends
 
@@ -62,6 +63,7 @@ const RoomModel = require("./models/Room");
 const http = require("http");
 const { Server } = require("socket.io");
 var cors = require('cors');
+const User = require('./models/User');
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
@@ -147,10 +149,10 @@ app.post(services.auth, async (req, res) => {
                 redirectTo: '/login',
             })
     } else {
-        var { username, email, receiveId, profile } = user;
+        var { username, email, profile } = user;
         return res.send(
             {
-                data: { username, email, receiveId, profile },
+                data: { username, email, profile },
             })
     }
 })
@@ -205,54 +207,124 @@ app.post(services.logIn, async (req, res) => {
                 msg: `It is a wrong password, ${user.username}...`
             })
     }
-    var { username, _id, receiveId, profile } = user;
-    req.session.user = { username, email, _id, receiveId }
+    var { username, _id, profile } = user;
+    req.session.user = { username, email, _id }
     res.json(
         {
             redirect: true,
             redirectTo: '/talk',
             status: "success",
             msg: `Welcome, ${user.username}...`,
-            data: { username, email, receiveId, profile }
+            data: { username, email, profile }
         })
 })
+// All users
+app.post('/allUser', requireAuth, async (req, res) => {
+    const { search } = req.body;
+    const { user } = req.session;
+    console.log(search);
+    const keyword = search ? {
+        $or: [
+            { username: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } }
+        ]
+    } : {};
+    const users = await UserModel.find(keyword).find({ _id: { $ne: user._id } }).select('_id username profile')
+    res.json(
+        {
+            status: "success",
+            data: { users }
+        })
 
+})
 // Home page data
 app.post('/getTalks', requireAuth, async (req, res) => {
-    
+
 })
 // Create group 
 app.post('/startRoomGrp', requireAuth, async (req, res) => {
-    
+
 })
 // get group messages 
 app.post('/grpMsg', requireAuth, async (req, res) => {
-    
+
 })
 // rename group 
 app.post('/renameGrp', requireAuth, async (req, res) => {
-    
+
 })
 // add user to group 
 app.post('/addUser', requireAuth, async (req, res) => {
-    
+
 })
 // remove user from group 
 app.post('/removeUser', requireAuth, async (req, res) => {
-    
+
 })
 // start one on one 
 app.post('/startRoomOOO', requireAuth, async (req, res) => {
-    
+
 })
 // get one on one messages
 app.post('/oOOmsg', requireAuth, async (req, res) => {
+    const { userId } = req.body;
+    const { user } = req.session;
+    if(mongoose.Types.ObjectId.isValid(userId)){
+        var userExist = await UserModel.findOne({ _id: userId }).select('-password');
+    }
     
+    if (userId && userExist) {
+        var roomData = await RoomModel.find({
+            isGrp: false,
+            $and: [
+                { users: { $elemMatch: { $eq: userId } } },
+                { users: { $elemMatch: { $eq: user._id } } },
+            ]
+        }).populate("users", "-password").populate("latestMsg");
+
+        roomData = await UserModel.populate(roomData, {
+            path: 'latestMsg.messageFrom',
+            select: "username email profile"
+        })
+        console.log(roomData)
+
+        if (roomData.length > 0) {
+            res.json(
+                {
+                    status: "success",
+                    data: { roomData }
+                })
+        } else {
+            var roomData = {
+                roomName: "private",
+                isGrp: false,
+                users: [userId, user._id]
+            }
+
+            try {
+                const createdRoom = await RoomModel.create(roomData);
+                const newRoomData = await RoomModel.findOne({ _id: createdRoom._id }).populate("users", "-password")
+                res.json(
+                    {
+                        status: "success",
+                        data: { newRoomData }
+                    })
+            } catch (error) {
+                throw new Error(error.message)
+            }
+        }
+    } else {
+        res.json(
+            {
+                status: "success",
+                data: "User id is invalid!"
+            })
+    }
 })
 
 // sendtalk
 app.post('/sendTalk', requireAuth, async (req, res) => {
-    
+
 })
 // API req ends
 const port = process.env.PORT || 4000
