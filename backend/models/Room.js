@@ -20,7 +20,7 @@ const roomSchema = new Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"
     },
-    grpAmin: {
+    grpAdmin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },

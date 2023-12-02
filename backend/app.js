@@ -239,11 +239,55 @@ app.post('/allUser', requireAuth, async (req, res) => {
 })
 // Home page data
 app.post('/getTalks', requireAuth, async (req, res) => {
-
+    try {
+        RoomModel.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
+            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg")
+            .then(async (result) => {
+                result = await UserModel.populate(result, {
+                    path: "latestMsg.messageFrom",
+                    select: "username profile email"
+                });
+                res.json({
+                    status: "success",
+                    data: result
+                })
+            }
+            )
+    } catch (error) {
+        throw new Error(error.message)
+    }
 })
 // Create group 
 app.post('/startRoomGrp', requireAuth, async (req, res) => {
-
+    if (!req.body.users || !req.body.name) {
+        return res.json({
+            status: "success",
+            data: "Invalid input"
+        })
+    }
+    var users = req.body.users;
+    if (users.length < 2) {
+        return res.json({
+            status: "success",
+            data: "Atleast 3 users required in a group!"
+        })
+    }
+    users.push(req.session.user._id)
+    try {
+        const grpRoom = await RoomModel.create({
+            roomName: req.body.name,
+            users,
+            isGrp: true,
+            grpAdmin: req.session.user._id
+        })
+        const CreatedRoom = await RoomModel.findOne({ _id: grpRoom._id }).populate("users", "-password").populate('grpAdmin', '-password')
+        res.json({
+            status: "success",
+            data: CreatedRoom
+        })
+    } catch (error) {
+        throw new Error(error.message)
+    }
 })
 // get group messages 
 app.post('/grpMsg', requireAuth, async (req, res) => {
@@ -269,10 +313,10 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
 app.post('/oOOmsg', requireAuth, async (req, res) => {
     const { userId } = req.body;
     const { user } = req.session;
-    if(mongoose.Types.ObjectId.isValid(userId)){
+    if (mongoose.Types.ObjectId.isValid(userId)) {
         var userExist = await UserModel.findOne({ _id: userId }).select('-password');
     }
-    
+
     if (userId && userExist) {
         var roomData = await RoomModel.find({
             isGrp: false,
@@ -286,8 +330,6 @@ app.post('/oOOmsg', requireAuth, async (req, res) => {
             path: 'latestMsg.messageFrom',
             select: "username email profile"
         })
-        console.log(roomData)
-
         if (roomData.length > 0) {
             res.json(
                 {
