@@ -6,13 +6,6 @@ const services = {
     signUp: "/844c62b1fbf4d74286afab7e8af47a026bdb1647cbe8730b0466b2ee6ad75a43",
     logIn: "/2708d0932454740f522d2d58dfd3ff0021fa0d6abcf4a4653d141874cedfdde1",
     auth: "/auth",
-  
-    getMsg: "/f11e9ffe2e91b0aaeb66ecdaa1c10c86d73b10554286f03f27e572cb31b221f5",
-    sendMsg: "/31e06f7d89feb99a0e6c0affe198748c3bb5bef5e3cc92d95cb9e996197d3fc3",
-    getHomeData: "/getHomeData",
-    startRoom: "/startRoom",
-
-    
     startRoomOOO: "/startRoomOOO",
     oOOmsg:"/oOOmsg",
     startRoomGrp: "/startRoomGrp",
@@ -20,7 +13,8 @@ const services = {
     renameGrp: "/renameGrp",
     addUser: "/addUser",
     removeUser: "/removeUser",
-    getTalks:"/getTalks"
+    getTalks:"/getTalks",
+    sendTalk:"/sendTalk"
 
 }
 const express = require('express');
@@ -121,10 +115,6 @@ app.use(session({
 // MONGOOSE ends
 
 // Middleware starts
-// app.use((req, res, next) => {
-//     console.log(req.session);
-//     next()
-// })
 const requireAuth = (req, res, next) => {
     const { user } = req.session;
     if (!user) {
@@ -226,105 +216,43 @@ app.post(services.logIn, async (req, res) => {
             data: { username, email, receiveId, profile }
         })
 })
+
 // Home page data
-app.post('/getHomeData', requireAuth, async (req, res) => {
-    const { user } = req.session;
-    // if (user.receiveId == createdBy) {
-    let roomData = await RoomModel.find({});
-    return res.send(
-        {
-            data: {roomData}
-        })
-
-    // }
+app.post('/getTalks', requireAuth, async (req, res) => {
+    
+})
+// Create group 
+app.post('/startRoomGrp', requireAuth, async (req, res) => {
+    
+})
+// get group messages 
+app.post('/grpMsg', requireAuth, async (req, res) => {
+    
+})
+// rename group 
+app.post('/renameGrp', requireAuth, async (req, res) => {
+    
+})
+// add user to group 
+app.post('/addUser', requireAuth, async (req, res) => {
+    
+})
+// remove user from group 
+app.post('/removeUser', requireAuth, async (req, res) => {
+    
+})
+// start one on one 
+app.post('/startRoomOOO', requireAuth, async (req, res) => {
+    
+})
+// get one on one messages
+app.post('/oOOmsg', requireAuth, async (req, res) => {
+    
 })
 
-// start chat or start group process
-app.post(services.startRoom, requireAuth, async (req, res) => {
-    const { user } = req.session;
-    const { email } = req.body;
-    console.log(req.body, user)
-    // if (user.receiveId == createdBy) {
-    let otherPerson = await UserModel.findOne({ email });
-    if (!otherPerson) {
-        return res.send(
-            {
-                status: "error",
-                msg: "Please check the input email!"
-            })
-    } else {
-        let room = {};
-        room.roomName = ""
-        room.members = ['loki', 'user two']
-        room.createdBy = 'loki'
-        room = new RoomModel(room)
-        await room.save();
-        let roomData = await RoomModel.find({});
-        console.log(roomData);
-
-        return res.send(
-            {
-                status: "sucess",
-                msg: `Room created successfully...`,
-                data: {roomData}
-            })
-
-    }
-    // }
-})
-
-// send messages process
-app.post(services.sendMsg, requireAuth, async (req, res) => {
-    const { user } = req.session.user;
-    const { message, messageFrom, messageTo, messageType, room } = req.body;
-    console.log(req.body, user)
-    // if (user.receiveId == req.body.messageFrom) {
-    const encrypted = encrypter(message);
-    let chat = {
-        message: encrypted.encryptedData,
-        iv: encrypted.base64Data,
-        messageFrom, messageTo, messageType, room
-    }
-    chat = new ChatModel(chat)
-    await chat.save();
-    console.log(chat);
-    const decrypted = decrypter(encrypted.encryptedData, encrypted.base64Data);
-    console.log(decrypted)
-    return res.send(
-        {
-            status: "sucess",
-            msg: `Message sent...`
-        })
-    // }
-})
-
-// get messages process
-app.post(services.getMsg, requireAuth, async (req, res) => {
-    console.log(req.body)
-    // const { email, password } = req.body;
-    // let user = await UserModel.findOne({ email });
-    // if (!user) {
-    //     return res.send(
-    //         {
-    //             status: "error",
-    //             msg: "Please check the credentials!"
-    //         })
-    // }
-    // const isMatch = await bcrypt.compare(password, user.password);
-    // if (!isMatch) {
-    //     return res.send(
-    //         {
-    //             status: "error",
-    //             msg: `It is a wrong password, ${user.username}...`
-    //         })
-    // }
-    return res.send(
-        {
-            redirect: true,
-            redirectTo: '/talk',
-            status: "success",
-            // msg: `Welcome, ${user.username}...`
-        })
+// sendtalk
+app.post('/sendTalk', requireAuth, async (req, res) => {
+    
 })
 // API req ends
 const port = process.env.PORT || 4000
