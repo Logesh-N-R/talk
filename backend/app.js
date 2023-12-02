@@ -295,15 +295,83 @@ app.post('/grpMsg', requireAuth, async (req, res) => {
 })
 // rename group 
 app.post('/renameGrp', requireAuth, async (req, res) => {
+    const {roomId,name} = req.body;
+    if(!name){
+        return res.json({
+            status: "success",
+            data: "Please enter valid name"
+        })
+    }
+    const UpdatedRoom = await RoomModel.findByIdAndUpdate(
+        roomId,
+        {
+            roomName:name
+        },
+        {
+            new:true
+        }
+    )
+    .populate("users","-password")
+    .populate("grpAdmin","-password")
 
+    if(!UpdatedRoom){
+        throw new Error("Room Not Found!")
+    }else{
+        return res.json({
+            status: "success",
+            data:UpdatedRoom
+        })  
+    }
 })
 // add user to group 
 app.post('/addUser', requireAuth, async (req, res) => {
-
+    const {roomId,userId}=req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id:  roomId, 
+        users:{$elemMatch:{$eq:userId}}
+    })
+    if(isUserAlreadyExist.length<=0){
+        const added = await RoomModel.findByIdAndUpdate(roomId,{$push:{users:userId}},{new:true}).populate("users","-password").populate("grpAdmin","-password")
+    
+        if(!added){
+            throw new Error("Room Not Found!")
+        }else{
+            return res.json({
+                status: "success",
+                data:added
+            })  
+        }
+    }else{
+        return res.json({
+            status: "success",
+            data:"user already in group"
+        })  
+    }
 })
 // remove user from group 
 app.post('/removeUser', requireAuth, async (req, res) => {
-
+    const {roomId,userId}=req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id:  roomId, 
+        users:{$elemMatch:{$eq:userId}}
+    })
+    if(isUserAlreadyExist.length>0){
+        const removed = await RoomModel.findByIdAndUpdate(roomId,{$pull:{users:userId}},{new:true}).populate("users","-password").populate("grpAdmin","-password")
+    
+        if(!removed){
+            throw new Error("Room Not Found!")
+        }else{
+            return res.json({
+                status: "success",
+                data:removed
+            })  
+        }
+    }else{
+        return res.json({
+            status: "success",
+            data:"user not in group"
+        })  
+    }
 })
 // start one on one 
 app.post('/startRoomOOO', requireAuth, async (req, res) => {
