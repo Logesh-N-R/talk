@@ -1,8 +1,10 @@
 import {combineReducers} from 'redux'
-import { roomsReducer,selectedRoomReducer,currentRoomReducer } from './talkReducer'
+import { roomsReducer,selectedRoomReducer,currentRoomReducer, setUserReducer, updateTalkReducer } from './talkReducer'
 
 export const rootReducer = combineReducers({
     allRooms:roomsReducer,
     selectedRoom:selectedRoomReducer,
-    currentRoom:currentRoomReducer
+    currentRoom:currentRoomReducer,
+    user:setUserReducer,
+    updateTalk:updateTalkReducer
 })

@@ -6,19 +6,27 @@ import logo from "../../images/backForForm.jpg"
 import Apicall from '../Apicall';
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from 'react-redux';
-import { selectedRoom, setAllRooms,currentRoom } from '../../redux/actions/talkActions';
-import { Link } from 'react-router-dom';
+import { selectedRoom, setAllRooms,currentRoom, removeSelectedRoom } from '../../redux/actions/talkActions';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 
 
-export default function Home(props) {
+export default function Home() {
     const rooms = useSelector((state)=>state.allRooms.rooms);
+    const userData = useSelector((state)=>state.user);
+    const navigate = useNavigate()
     const dispatch = useDispatch();
     useEffect(() => {
         fetchRooms()
+        dispatch(removeSelectedRoom({}))
     }, [])
     const fetchRooms = async ()=>{
         Apicall('getTalks', {}).then((res) => {
-            dispatch(setAllRooms(res.data))
+            if (res?.redirect) {
+                navigate(res.redirectTo)
+            }
+            if(res.status === 'success'){
+                dispatch(setAllRooms(res.data))
+            }
             console.log(res);
         })
     }
@@ -29,7 +37,6 @@ export default function Home(props) {
 
     const [startTalkFlag, setStartTalkFlag] = useState(false);
     const [inputVal, setInputVal] = useState('');
-    console.log(props)
     function onKeyDown(e) {
         console.log(e)
         if (e.key === 'Enter') {
@@ -51,7 +58,7 @@ export default function Home(props) {
             const roomInput = {};
             roomInput.email = val;
             Apicall('startRoom', roomInput).then((res) => {
-                if (res.data.status == "succss") {
+                if (res.data.status === "succss") {
                     console.log(res.data)
                 }
                 setStartTalkFlag(false);
@@ -70,7 +77,7 @@ export default function Home(props) {
         setStartTalkFlag(false)
     }
 
-    const userContRen = rooms? rooms.map((x,index) => {
+    const userContRen = rooms? rooms.map((x) => {
         return (
             <Link key={x._id} to='/talk'>
              <div  className="UserCont" onClick={()=>setCurrentRoom(x)}>
@@ -78,7 +85,7 @@ export default function Home(props) {
                     <img src={logo} alt={x.roomName} />
                 </div>
                 <div className="UserTitle">
-                    <div className='UserName'> {x.roomType == 'private' ? x.users[0].username : x.roomName}
+                    <div className='UserName'> {x.roomType === 'private' ? x.users[0].username : x.roomName}
                     </div>
                     {x.latestMsg &&
                     <div className='UserMsg'>{x.latestMsg.messageFrom.username} : {x.latestMsg.message} on {x.latestMsg.createdAt}
@@ -95,7 +102,7 @@ export default function Home(props) {
         <div className="HomeCont">
             <div className="HomeTopCont">
                 <div className="options"><ListTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div>
-                <div className="title">{props?.user?.username}'s Messages</div>
+                <div className="title">{userData.username}'s Messages</div>
                 <div className="search"><SearchIcon sx={{ fontSize: 40, color: "white" }} /></div>
             </div>
             <div className="HomebodyCont">

@@ -25,13 +25,13 @@ export default function Apicall(endpoint, input) {
     }
     return axios.post(endpoint, input, setup)
         .then((response) => {
-            if (response.status == 401) {
+            if (response.status === 401) {
                 toast.warn(`Unauthorized Request`);
                 return response.data;
             }
-            if (response.data.status == "success") {
+            if (response.data.status === "success" && response.data.msg) {
                 toast.success(`${response.data.msg}`);
-            } else if (response.data.status == "error") {
+            } else if (response.data.status === "error" && response.data.msg) {
                 toast.warn(`${response.data.msg}`);
             } else if (response.data?.data) {
                 return response.data;

@@ -20,11 +20,34 @@ export const currentRoomReducer = (state = initialState, { type, payload }) => {
     }
 
 }
-// 
+
 export const selectedRoomReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ActionTypes.SELECTED_ROOM:
             return { ...state, room:payload }
+        case ActionTypes.REMOVE_SELECTED_ROOM:
+            return { ...state, room:[] }
+        default:
+            return state
+    }
+
+}
+
+export const setUserReducer = (state = initialState, { type, payload }) => {
+    switch (type) {
+        case ActionTypes.SET_USER:
+            return { ...state, ...payload }
+        default:
+            return state
+    }
+
+}
+
+
+export const updateTalkReducer = (state = false, { type, payload }) => {
+    switch (type) {
+        case ActionTypes.UPDATE_TALK:
+            return { ...state, ...payload }
         default:
             return state
     }

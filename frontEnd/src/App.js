@@ -6,50 +6,24 @@ import Signup from "./components/ManageUser/Signup"
 import NoPage from "./components/NoPage"
 import Apicall from "./components/Apicall"
 
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom"
-import { CSSTransition, TransitionGroup, SwitchTransition } from 'react-transition-group';
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom"
+import { CSSTransition, SwitchTransition } from 'react-transition-group';
 
 // toaster
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserData } from './redux/actions/talkActions';
 
 
 
 export default function App() {
   const navigate = useLocation();
   const redirect = useNavigate();
-  const [user, setUser] = useState({});
-  const [session, setSession] = useState(true)
-  useEffect(() => {
-    console.log(navigate.pathname)
-    {
-      if (navigate.pathname != '/signup') {
-        checkSession()
-      }
-    }
-  }, [])
+  const dispatch = useDispatch()
+  const user = useSelector((state) => state.user)
+ 
 
-  // if (session) {
-  //   if (navigate.pathname != '/signup'){
-  //     checkSession()
-  //   }
-  // }
-
-  function checkSession() {
-    console.log("session")
-    Apicall('auth', {}).then((res) => {
-      if (res?.data) {
-        setUser(res.data)
-        setSession(true);
-      } else {
-        setSession(false);
-      }
-    })
-  }
-  function talk(val){
-    console.log(val);
-
-  }
   return (<div className="appContainter">
     <SwitchTransition>
       <CSSTransition
@@ -57,18 +31,12 @@ export default function App() {
         classNames="pageAnimate"
         timeout={500}
       >{
-          !session ?
-            <Routes location={navigate}>
-              <Route index element={<Login redirect={(val) => redirect(val)} successLogin={checkSession} />} />
-              <Route path="/login" exact element={<Login redirect={(val) => redirect(val)} successLogin={checkSession} />} />
+          <Routes location={navigate}>
+              <Route index exact element={<Login />} />
+              <Route path="/login" exact element={<Login/>} />
               <Route path="/signup" exact element={<Signup />} />
-              <Route path="*" element={<NoPage />} />
-            </Routes> : <Routes location={navigate}>
-              <Route index element={<Login redirect={(val) => redirect(val)} successLogin={checkSession} />} />
-              <Route path="/login" exact element={<Login redirect={(val) => redirect(val)} successLogin={checkSession} />} />
-              <Route path="/signup" exact element={<Signup />} />
-              <Route path="/home" exact element={<Home redirect={(val) => redirect(val)} user={user} talk={talk}/>} />
-              <Route path="/talk" exact element={<Talk redirect={(val) => redirect(val)} user={user} />} />
+              <Route path="/home" exact element={<Home/>} />
+              <Route path="/talk" exact element={<Talk />} />
               <Route path="*" element={<NoPage />} />
             </Routes>
         }

@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { toast } from "react-toastify";
 import Apicall from "../Apicall";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateTalk } from "../../redux/actions/talkActions";
 
 export default function TypePanel() {
     const [inputVal, setInputVal] = useState('');
+    const currentRoom = useSelector((state)=>state.currentRoom)
     const dispatch = useDispatch();
     function onKeyDown(e){
         console.log(e)
@@ -18,9 +20,12 @@ export default function TypePanel() {
     }
     const sendMessageCall = async (val)=>{
         Apicall('sendTalk', {
-            "roomId":"656b549dab3e51c175f4e606",
-            "content":val
-          }).then((res) => {
+            roomId:currentRoom._id,
+            content:val
+        }).then((res) => {
+            if (res?.status === 'success') {
+                dispatch(updateTalk(true))
+            }
             console.log(res);
         })
     }

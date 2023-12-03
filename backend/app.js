@@ -144,14 +144,18 @@ app.post('/auth', async (req, res) => {
     if (!user) {
         return res.send(
             {
+                status: "error",
+                msg: 'Session expired!',
                 redirect: true,
                 redirectTo: '/login',
             })
     } else {
-        var { username, email, profile } = user;
+        var { username, email, profile ,_id} = user;
         return res.send(
             {
-                data: { username, email, profile },
+                data: { username, email, profile,_id },
+                redirect: true,
+                redirectTo: '/home',
             })
     }
 })
@@ -213,7 +217,7 @@ app.post('/logIn', async (req, res) => {
             redirectTo: '/home',
             status: "success",
             msg: `Welcome, ${user.username}...`,
-            data: { username, email, profile }
+            data: { username, email, profile,_id }
         })
 })
 // Logout process
@@ -273,15 +277,15 @@ app.post('/getTalks', requireAuth, async (req, res) => {
 app.post('/startRoomGrp', requireAuth, async (req, res) => {
     if (!req.body.users || !req.body.name) {
         return res.json({
-            status: "success",
-            data: "Invalid input"
+            status: "error",
+            msg: "Invalid input"
         })
     }
     var users = req.body.users;
     if (users.length < 2) {
         return res.json({
-            status: "success",
-            data: "Atleast 3 users required in a group!"
+            status: "error",
+            msg: "Atleast 3 users required in a group!"
         })
     }
     users.push(req.session.user._id)
@@ -306,8 +310,8 @@ app.post('/renameGrp', requireAuth, async (req, res) => {
     const { roomId, name } = req.body;
     if (!name) {
         return res.json({
-            status: "success",
-            data: "Please enter valid name"
+            status: "error",
+            msg: "Please enter valid name"
         })
     }
     const UpdatedRoom = await RoomModel.findByIdAndUpdate(
@@ -346,13 +350,14 @@ app.post('/addUser', requireAuth, async (req, res) => {
         } else {
             return res.json({
                 status: "success",
+                msg:"User added successfully!",
                 data: added
             })
         }
     } else {
         return res.json({
-            status: "success",
-            data: "user already in group"
+            status: "error",
+            msg: "user already in group"
         })
     }
 })
@@ -371,13 +376,14 @@ app.post('/removeUser', requireAuth, async (req, res) => {
         } else {
             return res.json({
                 status: "success",
+                msg:"User removed successfully",
                 data: removed
             })
         }
     } else {
         return res.json({
-            status: "success",
-            data: "user not in group"
+            status: "error",
+            msg: "user not in group"
         })
     }
 })
@@ -406,6 +412,7 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
             res.json(
                 {
                     status: "success",
+                    msg:"Start Chatting!",
                     data: { roomData }
                 })
         } else {
@@ -421,6 +428,7 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
                 res.json(
                     {
                         status: "success",
+                        msg:"Start Chatting!",
                         data: { newRoomData }
                     })
             } catch (error) {
@@ -430,8 +438,8 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
     } else {
         res.json(
             {
-                status: "success",
-                data: "User id is invalid!"
+                status: "error",
+                msg: "User id is invalid!"
             })
     }
 })
@@ -449,7 +457,6 @@ app.post('/getMsg', requireAuth, async (req, res) => {
             const getMessage = await MessageModel.find({ room: roomId }).populate('messageFrom', 'username profile email').populate('room')
             res.json({
                 status: "success",
-                roomId: roomId,
                 data: getMessage
             })
         } catch (error) {
@@ -457,9 +464,8 @@ app.post('/getMsg', requireAuth, async (req, res) => {
         }
     } else {
         res.json({
-            status: "success",
-            roomId: roomId,
-            data: "Group unavailable!"
+            status: "error",
+            msg: "Group unavailable!"
         })
     }
 
@@ -470,8 +476,8 @@ app.post('/sendTalk', requireAuth, async (req, res) => {
     if (!roomId || !content) {
         return res.json(
             {
-                status: "success",
-                data: "Empty input sent"
+                status: "error",
+                msg: "Empty input sent"
             })
     }
     var newMessage = {
