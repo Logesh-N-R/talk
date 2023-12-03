@@ -13,14 +13,14 @@ export const roomsReducer = (state = initialState, { type, payload }) => {
 }
 export const currentRoomReducer = (state = initialState, { type, payload }) => {
     switch (type) {
-        case ActionTypes.SELECTED_ROOM:
-            return { ...state,currentRoom:(state.allRooms.filter((x)=>x._id==payload)) }
+        case ActionTypes.CURRENT_ROOM:
+            return { ...state,...payload }
         default:
             return state
     }
 
 }
-
+// 
 export const selectedRoomReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ActionTypes.SELECTED_ROOM:

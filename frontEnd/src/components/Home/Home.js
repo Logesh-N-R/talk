@@ -6,7 +6,7 @@ import logo from "../../images/backForForm.jpg"
 import Apicall from '../Apicall';
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from 'react-redux';
-import { selectedRoom, setAllRooms } from '../../redux/actions/talkActions';
+import { selectedRoom, setAllRooms,currentRoom } from '../../redux/actions/talkActions';
 import { Link } from 'react-router-dom';
 
 
@@ -22,16 +22,10 @@ export default function Home(props) {
             console.log(res);
         })
     }
-    const currentRoom = async (id)=>{
-        dispatch(currentRoom(id))
-        fetchRoomData(id)
+    const setCurrentRoom = async (val)=>{
+        dispatch(currentRoom(val))
     }
-    const fetchRoomData = async (id)=>{
-        Apicall('getMsg', {roomId:id}).then((res) => {
-            dispatch(selectedRoom(res.data))
-            console.log(res);
-        })
-    }
+    
 
     const [startTalkFlag, setStartTalkFlag] = useState(false);
     const [inputVal, setInputVal] = useState('');
@@ -78,8 +72,8 @@ export default function Home(props) {
 
     const userContRen = rooms? rooms.map((x,index) => {
         return (
-            <Link to='/talk'>
-             <div className="UserCont" data-eleClicked={x._id} onClick={()=>currentRoom(x._id)}>
+            <Link key={x._id} to='/talk'>
+             <div  className="UserCont" onClick={()=>setCurrentRoom(x)}>
                 <div className="UserDP">
                     <img src={logo} alt={x.roomName} />
                 </div>

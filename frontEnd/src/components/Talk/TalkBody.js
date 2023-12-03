@@ -1,8 +1,12 @@
 import React, { useRef, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import Apicall from '../Apicall'
+import { selectedRoom } from '../../redux/actions/talkActions'
 
 export default function TalkBody() {
     const talk = useSelector((state)=>state.selectedRoom.room)
+    const currentRoom = useSelector((state)=>state.currentRoom)
+    const dispatch = useDispatch();
     const messagesEndRef = useRef(null)
 
     const scrollToBottom = () => {
@@ -10,9 +14,14 @@ export default function TalkBody() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
     useEffect(() => {
+        fetchRoomData(currentRoom._id)
         scrollToBottom()
-    }, [talk]);
-
+    }, []);
+    const fetchRoomData = async (id)=>{
+        Apicall('getMsg', {roomId:id}).then((res) => {
+            dispatch(selectedRoom(res.data))
+        })
+    }
     const user_id = "656b34c92fbe54cfdb9c3fd4";
     const talkValEle =(talk?.length>0) ?  talk.map(x => {
         return (
@@ -28,7 +37,7 @@ export default function TalkBody() {
                 </div>
             </div>
         )
-    }):"NO CHAT YET"
+    }):"start..."
     return (<div className="TalkBodyContainer">
         <div className="TalkBodyContent">
             {talkValEle}

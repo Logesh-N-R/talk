@@ -45,7 +45,7 @@ export default function Signup() {
         <form className="UserForm signUP" onSubmit={handleOnSubmit}>
             <div className="UserFormCont">
                 <div className="UserInputTitleCont">
-                    <lable className="UserTitleLable">Sign Up</lable>
+                    <label className="UserTitleLable">Sign Up</label>
                 </div>
                 <div className="UserInputCont">
                     <label className="UserLable" htmlFor="username">Name</label>
@@ -56,19 +56,19 @@ export default function Signup() {
                     <input className="UserInputText" id='email' type='email' value={formInfo.email} name='email' onChange={handleChange} />
                 </div>
                 <div className="UserInputCont">
-                    <lable className="UserLable" htmlFor="password">Password</lable>
+                    <label className="UserLable" htmlFor="password">Password</label>
                     <input className="UserInputText" id='password' type='password' value={formInfo.password} name='password' onChange={handleChange} />
                 </div>
 
                 <div className="UserInputCont">
-                    <lable className="UserLable" htmlFor="cpassword">Confirm Password</lable>
+                    <label className="UserLable" htmlFor="cpassword">Confirm Password</label>
                     <input className="UserInputText" id='cpassword' type='password' value={formInfo.cp} name='cpw' onChange={handleChange} />
                 </div>
                 <div className="UserInputTitleCont">
                     <button type="submit" className="UserInputBtn">Sign Up</button>
                 </div>
                 <div className="UserInputCont">
-                    <p1>Already a user?<NavLink to="/login">  Log in</NavLink></p1>
+                    <p>Already a user?<NavLink to="/login">  Log in</NavLink></p>
                 </div>
 
             </div>

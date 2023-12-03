@@ -35,21 +35,21 @@ export default function Login(props) {
         <form className="UserForm logIn" onSubmit={handleOnSubmit}>
             <div className="UserFormCont">
                 <div className="UserInputTitleCont">
-                    <lable className="UserTitleLable">Log In</lable>
+                    <label className="UserTitleLable">Log In</label>
                 </div>
                 <div className="UserInputCont">
                     <label className="UserLable" htmlFor="email">Email</label>
                     <input className="UserInputText" id='email' type='email' value={formInfo.email} name='email' onChange={handleChange} />
                 </div>
                 <div className="UserInputCont">
-                    <lable className="UserLable" htmlFor="password">Password</lable>
+                    <label className="UserLable" htmlFor="password">Password</label>
                     <input className="UserInputText" id='password' type='password' value={formInfo.password} name='password' onChange={handleChange} />
                 </div>
                 <div className="UserInputTitleCont">
                     <button type="submit" className="UserInputBtn">Log In</button>
                 </div>
                 <div className="UserInputCont">
-                    <p1>Not a user?<NavLink to="/signup"> Sign up</NavLink></p1>
+                    <p>Not a user?<NavLink to="/signup"> Sign up</NavLink></p>
                 </div>
 
             </div>
