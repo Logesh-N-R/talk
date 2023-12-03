@@ -577,6 +577,10 @@ body {
     font-size: var(--big_font_size);
     font-weight: 600;
 }
+.userTitileLableSmall{
+    font-size: var(--small_font_size);
+    font-weight: 900;
+}
 
 .UserInputText {
     width: 60%;

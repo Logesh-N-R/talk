@@ -1,39 +1,37 @@
-import React, { useState, useRef, useEffect } from 'react'
-import logo from "../../images/logo.svg"
+import React, { useRef, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
-export default function TalkBody(props) {
-    console.log("total user:", props)
+export default function TalkBody() {
+    const talk = useSelector((state)=>state.selectedRoom.room)
     const messagesEndRef = useRef(null)
 
     const scrollToBottom = () => {
         console.log(messagesEndRef)
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
-
     useEffect(() => {
         scrollToBottom()
-    }, [props.data.talk]);
+    }, [talk]);
 
-    const talkValEle = props.data.talk.map(x => {
+    const user_id = "656b34c92fbe54cfdb9c3fd4";
+    const talkValEle =(talk?.length>0) ?  talk.map(x => {
         return (
-            <div key={x.msg_id} className={(x.user_id == props.user) ? 'ActivePersonCont' : 'OtherPersonCont'}>
-                <img className='talkImage' src={logo} />
-                <div className={(x.user_id == props.user) ? 'ActivePerson' : 'OtherPerson'}>
-                    <div className="talkContent">{x.msg}</div>
+            <div key={x._id} className={(x.messageFrom._id == user_id) ? 'ActivePersonCont' : 'OtherPersonCont'}>
+                <img className='talkImage' src={x.messageFrom.profile} />
+                <div className={(x.messageFrom._id == user_id) ? 'ActivePerson' : 'OtherPerson'}>
+                    <div className="talkContent userTitileLableSmall">{x.messageFrom.username}</div>
+                    <div className="talkContent">{x.message}</div>
                     <div className='talkContentMore'>
-                        <div className="talkMoreDetails">{x.datetime}</div>
+                        <div className="talkMoreDetails">{x.createdAt}</div>
                         {/* <div className="tick">{x.tick}</div> */}
                     </div>
                 </div>
             </div>
         )
-    })
+    }):"NO CHAT YET"
     return (<div className="TalkBodyContainer">
         <div className="TalkBodyContent">
             {talkValEle}
-            <h1>user:{props.user}</h1>
-            <h1>other user:{props.otherUser}</h1>
-            <h1>room:{props.room}</h1>
         </div>
         <div ref={messagesEndRef} />
 

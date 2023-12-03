@@ -5,9 +5,34 @@ import { useEffect, useState } from "react"
 import logo from "../../images/backForForm.jpg"
 import Apicall from '../Apicall';
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from 'react-redux';
+import { selectedRoom, setAllRooms } from '../../redux/actions/talkActions';
+import { Link } from 'react-router-dom';
 
 
 export default function Home(props) {
+    const rooms = useSelector((state)=>state.allRooms.rooms);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        fetchRooms()
+    }, [])
+    const fetchRooms = async ()=>{
+        Apicall('getTalks', {}).then((res) => {
+            dispatch(setAllRooms(res.data))
+            console.log(res);
+        })
+    }
+    const currentRoom = async (id)=>{
+        dispatch(currentRoom(id))
+        fetchRoomData(id)
+    }
+    const fetchRoomData = async (id)=>{
+        Apicall('getMsg', {roomId:id}).then((res) => {
+            dispatch(selectedRoom(res.data))
+            console.log(res);
+        })
+    }
+
     const [startTalkFlag, setStartTalkFlag] = useState(false);
     const [inputVal, setInputVal] = useState('');
     console.log(props)
@@ -21,23 +46,7 @@ export default function Home(props) {
             document.getElementById("startMsgInput").focus();
         }
     }
-
-    useEffect(() => {
-        getHomeData()
-    }, [])
-    const [homePageData, setHomePageData] = useState([])
-    function getHomeData() {
-        Apicall('getHomeData', { room: "room1" }).then((res) => {
-            console.log(res);
-            if (res?.redirect) {
-                props.redirect(res.redirectTo)
-            }
-            if (res?.data?.roomData) {
-                setHomePageData(res?.data?.roomData)
-                console.log(res?.data?.roomData)
-            }
-        })
-    }
+   
     function handleChange(e) {
         const val = e.target.value;
         setInputVal(val);
@@ -67,22 +76,27 @@ export default function Home(props) {
         setStartTalkFlag(false)
     }
 
-    const userContRen = homePageData.map((x,index) => {
+    const userContRen = rooms? rooms.map((x,index) => {
         return (
-            <div className="UserCont" data-eleClicked={x._id} onClick={(e)=>props.talk(e)}>
+            <Link to='/talk'>
+             <div className="UserCont" data-eleClicked={x._id} onClick={()=>currentRoom(x._id)}>
                 <div className="UserDP">
-                    <img src={logo} alt='dp' />
+                    <img src={logo} alt={x.roomName} />
                 </div>
                 <div className="UserTitle">
-                    <div className='UserName'> {x.roomType == 'private' ? x.members[1] : x.roomName}
+                    <div className='UserName'> {x.roomType == 'private' ? x.users[0].username : x.roomName}
                     </div>
-                    <div className='UserMsg'>{x.roomId}
+                    {x.latestMsg &&
+                    <div className='UserMsg'>{x.latestMsg.messageFrom.username} : {x.latestMsg.message} on {x.latestMsg.createdAt}
                     </div>
+                    }
                 </div>
                 <div className="UserMsgCount">1000</div>
             </div>
+            </Link>
+           
         )
-    });
+    }):"Loading...";
     return <div className="HomeContTotal">
         <div className="HomeCont">
             <div className="HomeTopCont">

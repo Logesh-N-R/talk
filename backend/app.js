@@ -5,6 +5,7 @@ const services = {
     // https://emn178.github.io/online-tools/sha256.html
     signUp: "/signUp",
     logIn: "/logIn",
+    logOut: "/logOut",
     auth: "/auth",
     allUser: "/allUser",
     startRoomOOO: "/startRoomOOO",
@@ -15,7 +16,6 @@ const services = {
     removeUser: "/removeUser",
     getTalks: "/getTalks",
     sendTalk: "/sendTalk"
-
 }
 const express = require('express');
 const bcrypt = require('bcryptjs');
@@ -139,7 +139,7 @@ app.get('*', function (req, res) {
 })
 
 // session check process
-app.post(services.auth, async (req, res) => {
+app.post('/auth', async (req, res) => {
     const { user } = req.session;
     if (!user) {
         return res.send(
@@ -157,7 +157,7 @@ app.post(services.auth, async (req, res) => {
 })
 
 // Signup process
-app.post(services.signUp, async (req, res) => {
+app.post('/signUp', async (req, res) => {
     req.body.email = req.body.email.toLowerCase();
     const { username, email, password } = req.body;
     let user = await UserModel.findOne({ email });
@@ -184,7 +184,7 @@ app.post(services.signUp, async (req, res) => {
         })
 })
 // Login process
-app.post(services.logIn, async (req, res) => {
+app.post('/logIn', async (req, res) => {
     req.body.email = req.body.email.toLowerCase();
     const { email, password } = req.body;
     let user = await UserModel.findOne({ email });
@@ -210,9 +210,22 @@ app.post(services.logIn, async (req, res) => {
     res.json(
         {
             redirect: true,
-            redirectTo: '/talk',
+            redirectTo: '/home',
             status: "success",
             msg: `Welcome, ${user.username}...`,
+            data: { username, email, profile }
+        })
+})
+// Logout process
+app.post('/logOut', async (req, res) => {
+    let user = await UserModel.findOne({ email });
+    req.session.user = "";
+    res.json(
+        {
+            redirect: true,
+            redirectTo: '/login',
+            status: "success",
+            msg: `Bye Bye! Come back soon`,
             data: { username, email, profile }
         })
 })
@@ -238,8 +251,9 @@ app.post('/allUser', requireAuth, async (req, res) => {
 // Home page data
 app.post('/getTalks', requireAuth, async (req, res) => {
     try {
+        console.log(req.session.user._id);
         RoomModel.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
-            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg").sort({updatedAt:-1})
+            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg").sort({ updatedAt: -1 })
             .then(async (result) => {
                 result = await UserModel.populate(result, {
                     path: "latestMsg.messageFrom",
@@ -421,9 +435,9 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
             })
     }
 })
-// get one on one messages
+// get messages
 app.post('/getMsg', requireAuth, async (req, res) => {
-    const {roomId} = req.body;
+    const { roomId } = req.body;
     const isUserAlreadyExist = await RoomModel.find({
         _id: roomId,
         users: { $elemMatch: { $eq: req.session.user._id } }
@@ -431,20 +445,22 @@ app.post('/getMsg', requireAuth, async (req, res) => {
     console.log(isUserAlreadyExist)
     if (isUserAlreadyExist.length > 0) {
 
-        try{
-            const getMessage = await MessageModel.find({room:roomId}).populate('messageFrom','username profile email').populate('room')
+        try {
+            const getMessage = await MessageModel.find({ room: roomId }).populate('messageFrom', 'username profile email').populate('room')
             res.json({
                 status: "success",
+                roomId: roomId,
                 data: getMessage
             })
-        }catch(error){
+        } catch (error) {
             throw new Error(error.message)
         }
-    }else{
+    } else {
         res.json({
             status: "success",
+            roomId: roomId,
             data: "Group unavailable!"
-        }) 
+        })
     }
 
 })
