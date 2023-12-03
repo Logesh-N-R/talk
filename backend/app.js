@@ -77,24 +77,33 @@ const io = new Server(server, {
 });
 io.on("connection", (socket) => {
     console.log(`user connected:  ${socket.id}`)
-    socket.on("msg_sent", (data) => {
-        socket.broadcast.emit("msg_received", "loki sent a msg")
-        console.log(data);
+    socket.on("new_room",(data)=>{
+        socket.join(data);
+        socket.emit("connected")
     })
     socket.on("join_room", (data) => {
+        console.log("room",data)
         socket.join(data);
     })
-    socket.on("room_msg_send", (data) => {
-        socket.to(data.room).emit("room_msg_received", data.msg)
+    socket.on("new_msg",(data)=>{
+        socket.to(data.room._id).emit("messageReceived","new message received")
+    })
+    socket.on("typing",(room)=>{
+        console.log("typing")
+        socket.to(room).emit("userTyping")
+    })
+    socket.on("stopTyping",(room)=>{
+        console.log("stop typing")
+        socket.to(room).emit("userStopTyping")
     })
 })
+io.close()
 // SOCKET.IO finish
 
 // MONGOURI=mongodb+srv://logeshnr17:FfY1VxMqKHVNwsL2@cluster0.y6gasxf.mongodb.net/
 // MONGOOSE starts
 mongoose.connect(process.env.MONGOURI)
     .then((res) => {
-        // console.log(res);
         console.log("mongo db connected");
     })
 
@@ -237,7 +246,6 @@ app.post('/logOut', async (req, res) => {
 app.post('/allUser', requireAuth, async (req, res) => {
     const { search } = req.body;
     const { user } = req.session;
-    console.log(search);
     const keyword = search ? {
         $or: [
             { username: { $regex: search, $options: "i" } },
@@ -255,7 +263,6 @@ app.post('/allUser', requireAuth, async (req, res) => {
 // Home page data
 app.post('/getTalks', requireAuth, async (req, res) => {
     try {
-        console.log(req.session.user._id);
         RoomModel.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
             .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg").sort({ updatedAt: -1 })
             .then(async (result) => {
@@ -450,7 +457,6 @@ app.post('/getMsg', requireAuth, async (req, res) => {
         _id: roomId,
         users: { $elemMatch: { $eq: req.session.user._id } }
     })
-    console.log(isUserAlreadyExist)
     if (isUserAlreadyExist.length > 0) {
 
         try {
