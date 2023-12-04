@@ -3,26 +3,21 @@ require('dotenv').config()
 const services = {
     // url for encryption of path
     // https://emn178.github.io/online-tools/sha256.html
-    signUp: "/844c62b1fbf4d74286afab7e8af47a026bdb1647cbe8730b0466b2ee6ad75a43",
-    logIn: "/2708d0932454740f522d2d58dfd3ff0021fa0d6abcf4a4653d141874cedfdde1",
+    signUp: "/signUp",
+    logIn: "/logIn",
+    logOut: "/logOut",
     auth: "/auth",
-  
-    getMsg: "/f11e9ffe2e91b0aaeb66ecdaa1c10c86d73b10554286f03f27e572cb31b221f5",
-    sendMsg: "/31e06f7d89feb99a0e6c0affe198748c3bb5bef5e3cc92d95cb9e996197d3fc3",
-    getHomeData: "/getHomeData",
-    startRoom: "/startRoom",
-
-    
+    allUser: "/allUser",
     startRoomOOO: "/startRoomOOO",
-    oOOmsg:"/oOOmsg",
     startRoomGrp: "/startRoomGrp",
-    grpMsg: "/grpMsg",
+    getMsg: "/getMsg",
     renameGrp: "/renameGrp",
     addUser: "/addUser",
     removeUser: "/removeUser",
-    getTalks:"/getTalks"
-
+    getTalks: "/getTalks",
+    sendTalk: "/sendTalk"
 }
+const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const session = require('express-session')
@@ -60,7 +55,7 @@ function decrypter(encryptedData, base64Data) {
 
 // Models import starts
 const UserModel = require("./models/User");
-const ChatModel = require("./models/Chat");
+const MessageModel = require("./models/Message");
 const RoomModel = require("./models/Room");
 // Models import ends
 
@@ -68,6 +63,7 @@ const RoomModel = require("./models/Room");
 const http = require("http");
 const { Server } = require("socket.io");
 var cors = require('cors');
+const User = require('./models/User');
 app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
@@ -82,24 +78,33 @@ const io = new Server(server, {
 });
 io.on("connection", (socket) => {
     console.log(`user connected:  ${socket.id}`)
-    socket.on("msg_sent", (data) => {
-        socket.broadcast.emit("msg_received", "loki sent a msg")
-        console.log(data);
+    socket.on("new_room",(data)=>{
+        socket.join(data);
+        socket.emit("connected")
     })
     socket.on("join_room", (data) => {
+        console.log("room",data)
         socket.join(data);
     })
-    socket.on("room_msg_send", (data) => {
-        socket.to(data.room).emit("room_msg_received", data.msg)
+    socket.on("new_msg",(data)=>{
+        socket.to(data.room._id).emit("messageReceived","new message received")
+    })
+    socket.on("typing",(room)=>{
+        console.log("typing")
+        socket.to(room).emit("userTyping")
+    })
+    socket.on("stopTyping",(room)=>{
+        console.log("stop typing")
+        socket.to(room).emit("userStopTyping")
     })
 })
+io.close()
 // SOCKET.IO finish
 
 // MONGOURI=mongodb+srv://logeshnr17:FfY1VxMqKHVNwsL2@cluster0.y6gasxf.mongodb.net/
 // MONGOOSE starts
 mongoose.connect(process.env.MONGOURI)
     .then((res) => {
-        // console.log(res);
         console.log("mongo db connected");
     })
 
@@ -121,10 +126,6 @@ app.use(session({
 // MONGOOSE ends
 
 // Middleware starts
-// app.use((req, res, next) => {
-//     console.log(req.session);
-//     next()
-// })
 const requireAuth = (req, res, next) => {
     const { user } = req.session;
     if (!user) {
@@ -139,34 +140,55 @@ const requireAuth = (req, res, next) => {
 }
 // Middleware ends
 
-// API req starts
-app.get('/', function (req, res) {
-    res.send("NOT AUTHORIZED")
-})
-app.get('*', function (req, res) {
-    res.send("Not found");
-})
+
+
+
+
+// deployment code start
+const __dirname1 = path.resolve()
+if(process.env.NODE_ENV == 'production'){
+    app.use(express.static(path.join(__dirname1,"../frontEnd/build")));
+    
+    app.get('*',(req,res)=>{
+        res.sendFile(path.resolve(__dirname1,"../frontEnd","build","index.html"))
+    })
+
+}else{
+    // API req starts
+    app.get('/', function (req, res) {
+        res.send("NOT AUTHORIZED")
+    })
+    // app.get('*', function (req, res) {
+    //     res.send("Not found");
+    // })
+}
+
+// deployment code end
 
 // session check process
-app.post(services.auth, async (req, res) => {
+app.post('/auth', async (req, res) => {
     const { user } = req.session;
     if (!user) {
         return res.send(
             {
+                status: "error",
+                msg: 'Session expired!',
                 redirect: true,
                 redirectTo: '/login',
             })
     } else {
-        var { username, email, receiveId, profile } = user;
+        var { username, email, profile ,_id} = user;
         return res.send(
             {
-                data: { username, email, receiveId, profile },
+                data: { username, email, profile,_id },
+                redirect: true,
+                redirectTo: '/home',
             })
     }
 })
 
 // Signup process
-app.post(services.signUp, async (req, res) => {
+app.post('/signUp', async (req, res) => {
     req.body.email = req.body.email.toLowerCase();
     const { username, email, password } = req.body;
     let user = await UserModel.findOne({ email });
@@ -192,9 +214,8 @@ app.post(services.signUp, async (req, res) => {
             msg: `Nice to meet you, ${username}...`
         })
 })
-
 // Login process
-app.post(services.logIn, async (req, res) => {
+app.post('/logIn', async (req, res) => {
     req.body.email = req.body.email.toLowerCase();
     const { email, password } = req.body;
     let user = await UserModel.findOne({ email });
@@ -215,116 +236,301 @@ app.post(services.logIn, async (req, res) => {
                 msg: `It is a wrong password, ${user.username}...`
             })
     }
-    var { username, _id, receiveId, profile } = user;
-    req.session.user = { username, email, _id, receiveId }
+    var { username, _id, profile } = user;
+    req.session.user = { username, email, _id }
     res.json(
         {
             redirect: true,
-            redirectTo: '/talk',
+            redirectTo: '/home',
             status: "success",
             msg: `Welcome, ${user.username}...`,
-            data: { username, email, receiveId, profile }
+            data: { username, email, profile,_id }
         })
 })
-// Home page data
-app.post('/getHomeData', requireAuth, async (req, res) => {
-    const { user } = req.session;
-    // if (user.receiveId == createdBy) {
-    let roomData = await RoomModel.find({});
-    return res.send(
-        {
-            data: {roomData}
-        })
-
-    // }
-})
-
-// start chat or start group process
-app.post(services.startRoom, requireAuth, async (req, res) => {
-    const { user } = req.session;
-    const { email } = req.body;
-    console.log(req.body, user)
-    // if (user.receiveId == createdBy) {
-    let otherPerson = await UserModel.findOne({ email });
-    if (!otherPerson) {
-        return res.send(
-            {
-                status: "error",
-                msg: "Please check the input email!"
-            })
-    } else {
-        let room = {};
-        room.roomName = ""
-        room.members = ['loki', 'user two']
-        room.createdBy = 'loki'
-        room = new RoomModel(room)
-        await room.save();
-        let roomData = await RoomModel.find({});
-        console.log(roomData);
-
-        return res.send(
-            {
-                status: "sucess",
-                msg: `Room created successfully...`,
-                data: {roomData}
-            })
-
-    }
-    // }
-})
-
-// send messages process
-app.post(services.sendMsg, requireAuth, async (req, res) => {
-    const { user } = req.session.user;
-    const { message, messageFrom, messageTo, messageType, room } = req.body;
-    console.log(req.body, user)
-    // if (user.receiveId == req.body.messageFrom) {
-    const encrypted = encrypter(message);
-    let chat = {
-        message: encrypted.encryptedData,
-        iv: encrypted.base64Data,
-        messageFrom, messageTo, messageType, room
-    }
-    chat = new ChatModel(chat)
-    await chat.save();
-    console.log(chat);
-    const decrypted = decrypter(encrypted.encryptedData, encrypted.base64Data);
-    console.log(decrypted)
-    return res.send(
-        {
-            status: "sucess",
-            msg: `Message sent...`
-        })
-    // }
-})
-
-// get messages process
-app.post(services.getMsg, requireAuth, async (req, res) => {
-    console.log(req.body)
-    // const { email, password } = req.body;
-    // let user = await UserModel.findOne({ email });
-    // if (!user) {
-    //     return res.send(
-    //         {
-    //             status: "error",
-    //             msg: "Please check the credentials!"
-    //         })
-    // }
-    // const isMatch = await bcrypt.compare(password, user.password);
-    // if (!isMatch) {
-    //     return res.send(
-    //         {
-    //             status: "error",
-    //             msg: `It is a wrong password, ${user.username}...`
-    //         })
-    // }
-    return res.send(
+// Logout process
+app.post('/logOut', async (req, res) => {
+    let user = await UserModel.findOne({ email });
+    req.session.user = "";
+    res.json(
         {
             redirect: true,
-            redirectTo: '/talk',
+            redirectTo: '/login',
             status: "success",
-            // msg: `Welcome, ${user.username}...`
+            msg: `Bye Bye! Come back soon`,
+            data: { username, email, profile }
         })
+})
+// All users
+app.post('/allUser', requireAuth, async (req, res) => {
+    const { search } = req.body;
+    const { user } = req.session;
+    const keyword = search ? {
+        $or: [
+            { username: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } }
+        ]
+    } : {};
+    const users = await UserModel.find(keyword).find({ _id: { $ne: user._id } }).select('_id username profile')
+    res.json(
+        {
+            status: "success",
+            data: { users }
+        })
+
+})
+// Home page data
+app.post('/getTalks', requireAuth, async (req, res) => {
+    try {
+        RoomModel.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
+            .populate("users", "-password").populate("grpAdmin", "-password").populate("latestMsg").sort({ updatedAt: -1 })
+            .then(async (result) => {
+                result = await UserModel.populate(result, {
+                    path: "latestMsg.messageFrom",
+                    select: "username profile email"
+                });
+                res.json({
+                    status: "success",
+                    data: result
+                })
+            }
+            )
+    } catch (error) {
+        throw new Error(error.message)
+    }
+})
+// Create group 
+app.post('/startRoomGrp', requireAuth, async (req, res) => {
+    if (!req.body.users || !req.body.name) {
+        return res.json({
+            status: "error",
+            msg: "Invalid input"
+        })
+    }
+    var users = req.body.users;
+    if (users.length < 2) {
+        return res.json({
+            status: "error",
+            msg: "Atleast 3 users required in a group!"
+        })
+    }
+    users.push(req.session.user._id)
+    try {
+        const grpRoom = await RoomModel.create({
+            roomName: req.body.name,
+            users,
+            isGrp: true,
+            grpAdmin: req.session.user._id
+        })
+        const CreatedRoom = await RoomModel.findOne({ _id: grpRoom._id }).populate("users", "-password").populate('grpAdmin', '-password')
+        res.json({
+            status: "success",
+            data: CreatedRoom
+        })
+    } catch (error) {
+        throw new Error(error.message)
+    }
+})
+// rename group 
+app.post('/renameGrp', requireAuth, async (req, res) => {
+    const { roomId, name } = req.body;
+    if (!name) {
+        return res.json({
+            status: "error",
+            msg: "Please enter valid name"
+        })
+    }
+    const UpdatedRoom = await RoomModel.findByIdAndUpdate(
+        roomId,
+        {
+            roomName: name
+        },
+        {
+            new: true
+        }
+    )
+        .populate("users", "-password")
+        .populate("grpAdmin", "-password")
+
+    if (!UpdatedRoom) {
+        throw new Error("Room Not Found!")
+    } else {
+        return res.json({
+            status: "success",
+            data: UpdatedRoom
+        })
+    }
+})
+// add user to group 
+app.post('/addUser', requireAuth, async (req, res) => {
+    const { roomId, userId } = req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id: roomId,
+        users: { $elemMatch: { $eq: userId } }
+    })
+    if (isUserAlreadyExist.length <= 0) {
+        const added = await RoomModel.findByIdAndUpdate(roomId, { $push: { users: userId } }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
+
+        if (!added) {
+            throw new Error("Room Not Found!")
+        } else {
+            return res.json({
+                status: "success",
+                msg:"User added successfully!",
+                data: added
+            })
+        }
+    } else {
+        return res.json({
+            status: "error",
+            msg: "user already in group"
+        })
+    }
+})
+// remove user from group 
+app.post('/removeUser', requireAuth, async (req, res) => {
+    const { roomId, userId } = req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id: roomId,
+        users: { $elemMatch: { $eq: userId } }
+    })
+    if (isUserAlreadyExist.length > 0) {
+        const removed = await RoomModel.findByIdAndUpdate(roomId, { $pull: { users: userId } }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
+
+        if (!removed) {
+            throw new Error("Room Not Found!")
+        } else {
+            return res.json({
+                status: "success",
+                msg:"User removed successfully",
+                data: removed
+            })
+        }
+    } else {
+        return res.json({
+            status: "error",
+            msg: "user not in group"
+        })
+    }
+})
+// set one on one room
+app.post('/startRoomOOO', requireAuth, async (req, res) => {
+    const { userId } = req.body;
+    const { user } = req.session;
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+        var userExist = await UserModel.findOne({ _id: userId }).select('-password');
+    }
+
+    if (userId && userExist) {
+        var roomData = await RoomModel.find({
+            isGrp: false,
+            $and: [
+                { users: { $elemMatch: { $eq: userId } } },
+                { users: { $elemMatch: { $eq: user._id } } },
+            ]
+        }).populate("users", "-password").populate("latestMsg");
+
+        roomData = await UserModel.populate(roomData, {
+            path: 'latestMsg.messageFrom',
+            select: "username email profile"
+        })
+        if (roomData.length > 0) {
+            res.json(
+                {
+                    status: "success",
+                    msg:"Start Chatting!",
+                    data: { roomData }
+                })
+        } else {
+            var roomData = {
+                roomName: "private",
+                isGrp: false,
+                users: [userId, user._id]
+            }
+
+            try {
+                const createdRoom = await RoomModel.create(roomData);
+                const newRoomData = await RoomModel.findOne({ _id: createdRoom._id }).populate("users", "-password")
+                res.json(
+                    {
+                        status: "success",
+                        msg:"Start Chatting!",
+                        data: { newRoomData }
+                    })
+            } catch (error) {
+                throw new Error(error.message)
+            }
+        }
+    } else {
+        res.json(
+            {
+                status: "error",
+                msg: "User id is invalid!"
+            })
+    }
+})
+// get messages
+app.post('/getMsg', requireAuth, async (req, res) => {
+    const { roomId } = req.body;
+    const isUserAlreadyExist = await RoomModel.find({
+        _id: roomId,
+        users: { $elemMatch: { $eq: req.session.user._id } }
+    })
+    if (isUserAlreadyExist.length > 0) {
+
+        try {
+            const getMessage = await MessageModel.find({ room: roomId }).populate('messageFrom', 'username profile email').populate('room')
+            res.json({
+                status: "success",
+                data: getMessage
+            })
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    } else {
+        res.json({
+            status: "error",
+            msg: "Group unavailable!"
+        })
+    }
+
+})
+// sendtalk
+app.post('/sendTalk', requireAuth, async (req, res) => {
+    const { roomId, content } = req.body
+    if (!roomId || !content) {
+        return res.json(
+            {
+                status: "error",
+                msg: "Empty input sent"
+            })
+    }
+    var newMessage = {
+        messageFrom: req.session.user._id,
+        room: roomId,
+        message: content
+    }
+    try {
+        var message = await MessageModel.create(newMessage);
+        message = await message.populate("messageFrom", "username profile");
+        message = await message.populate("room");
+        message = await UserModel.populate(message, {
+            path: 'rooms.users',
+            select: 'username profile email'
+        });
+
+        await RoomModel.findByIdAndUpdate(roomId, {
+            latestMsg: message
+        })
+        res.json(
+            {
+                status: "success",
+                data: message
+            })
+
+    } catch (error) {
+        throw new Error(error.message)
+    }
+
 })
 // API req ends
 const port = process.env.PORT || 4000

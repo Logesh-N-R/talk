@@ -1,39 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react'
-import logo from "../../images/logo.svg"
+import React, { useRef, useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import Apicall from '../Apicall'
+import { selectedRoom, updateTalk } from '../../redux/actions/talkActions'
+import { useNavigate } from 'react-router'
+import {socket} from '../../socket'
 
-export default function TalkBody(props) {
-    console.log("total user:", props)
+export default function TalkBody() {
+    const talk = useSelector((state) => state.selectedRoom.room)
+    const user = useSelector((state) => state.user)
     const messagesEndRef = useRef(null)
-
-    const scrollToBottom = () => {
-        console.log(messagesEndRef)
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
     useEffect(() => {
         scrollToBottom()
-    }, [props.data.talk]);
-
-    const talkValEle = props.data.talk.map(x => {
+    }, [talk])
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+    
+    const talkValEle = (talk?.length > 0) ? talk.map(x => {
         return (
-            <div key={x.msg_id} className={(x.user_id == props.user) ? 'ActivePersonCont' : 'OtherPersonCont'}>
-                <img className='talkImage' src={logo} />
-                <div className={(x.user_id == props.user) ? 'ActivePerson' : 'OtherPerson'}>
-                    <div className="talkContent">{x.msg}</div>
+            <div key={x._id} className={(x.messageFrom._id === user._id) ? 'ActivePersonCont' : 'OtherPersonCont'}>
+                <img className='talkImage' src={x.messageFrom.profile} alt={x.messageFrom.username}/>
+                <div className={(x.messageFrom._id === user._id) ? 'ActivePerson' : 'OtherPerson'}>
+                    <div className="talkContent userTitileLableSmall">{x.messageFrom.username}</div>
+                    <div className="talkContent">{x.message}</div>
                     <div className='talkContentMore'>
-                        <div className="talkMoreDetails">{x.datetime}</div>
+                        <div className="talkMoreDetails">{x.createdAt}</div>
                         {/* <div className="tick">{x.tick}</div> */}
                     </div>
                 </div>
             </div>
         )
-    })
+    }) : ""
     return (<div className="TalkBodyContainer">
         <div className="TalkBodyContent">
             {talkValEle}
-            <h1>user:{props.user}</h1>
-            <h1>other user:{props.otherUser}</h1>
-            <h1>room:{props.room}</h1>
         </div>
         <div ref={messagesEndRef} />
 

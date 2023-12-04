@@ -1,15 +1,31 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import Apicall from "../Apicall";
+import { useDispatch, useSelector } from "react-redux";
+import { loaderSetting, setUserData } from "../../redux/actions/talkActions";
 
 export default function Login(props) {
+    const userData = useSelector((state) => state.user);
+    const dispatch = useDispatch();
+    const redirect = useNavigate();
+    useEffect(() => {
+        if (!userData.username) {
+            dispatch(loaderSetting(false));
+            Apicall('auth', {}).then((res) => {
+                dispatch(setUserData(res.data))
+                if (res?.redirect) {
+                    redirect(res.redirectTo)
+                }
+            })
+        }
+    }, [])
+
     const [formInfo, setFormInfo] = useState({ 'email': '', password: '' })
     function handleChange(e) {
         setFormInfo(preForm => (
             { ...preForm, [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }
         ))
-
     }
     function handleOnSubmit(event) {
         event.preventDefault();
@@ -18,13 +34,10 @@ export default function Login(props) {
         } else if (formInfo.password.length < 8) {
             toast.warn('Are you sure? password seems too short!');
         } else {
-            Apicall('logIn', formInfo).then((res)=>{
-                if(res?.data){
-                    console.log(props)
-                    props.successLogin(res.data)
-                }
-                if(res?.redirect){
-                    props.redirect(res.redirectTo)
+            Apicall('logIn', formInfo).then((res) => {
+                dispatch(setUserData(res.data))
+                if (res?.redirect) {
+                    redirect(res.redirectTo)
                 }
             })
         }
@@ -35,21 +48,21 @@ export default function Login(props) {
         <form className="UserForm logIn" onSubmit={handleOnSubmit}>
             <div className="UserFormCont">
                 <div className="UserInputTitleCont">
-                    <lable className="UserTitleLable">Log In</lable>
+                    <label className="UserTitleLable">Log In</label>
                 </div>
                 <div className="UserInputCont">
                     <label className="UserLable" htmlFor="email">Email</label>
                     <input className="UserInputText" id='email' type='email' value={formInfo.email} name='email' onChange={handleChange} />
                 </div>
                 <div className="UserInputCont">
-                    <lable className="UserLable" htmlFor="password">Password</lable>
+                    <label className="UserLable" htmlFor="password">Password</label>
                     <input className="UserInputText" id='password' type='password' value={formInfo.password} name='password' onChange={handleChange} />
                 </div>
                 <div className="UserInputTitleCont">
                     <button type="submit" className="UserInputBtn">Log In</button>
                 </div>
                 <div className="UserInputCont">
-                    <p1>Not a user?<NavLink to="/signup"> Sign up</NavLink></p1>
+                    <p>Not a user?<NavLink to="/signup"> Sign up</NavLink></p>
                 </div>
 
             </div>
