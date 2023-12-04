@@ -35,3 +35,16 @@ export const updateTalk = (changeStatus) => {
         payload: changeStatus,
     }
 }
+
+export const socketData = (data) => {
+    return {
+        type: ActionTypes.SOCKET_DATA,
+        payload: data,
+    }
+}
+export const loaderSetting = (load) => {
+    return {
+        type: ActionTypes.IS_LOADING,
+        status: load,
+    }
+}

@@ -2,20 +2,24 @@ import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import Apicall from "../Apicall";
-import { useDispatch } from "react-redux";
-import { setUserData } from "../../redux/actions/talkActions";
+import { useDispatch, useSelector } from "react-redux";
+import { loaderSetting, setUserData } from "../../redux/actions/talkActions";
 
 export default function Login(props) {
+    const userData = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const redirect = useNavigate();
     useEffect(() => {
-        Apicall('auth', {}).then((res) => {
-          dispatch(setUserData(res.data))
-          if (res?.redirect) {
-            redirect(res.redirectTo)
-          }
-        })
-      }, [])
+        if (!userData.username) {
+            dispatch(loaderSetting(false));
+            Apicall('auth', {}).then((res) => {
+                dispatch(setUserData(res.data))
+                if (res?.redirect) {
+                    redirect(res.redirectTo)
+                }
+            })
+        }
+    }, [])
 
     const [formInfo, setFormInfo] = useState({ 'email': '', password: '' })
     function handleChange(e) {
@@ -30,9 +34,9 @@ export default function Login(props) {
         } else if (formInfo.password.length < 8) {
             toast.warn('Are you sure? password seems too short!');
         } else {
-            Apicall('logIn', formInfo).then((res)=>{
+            Apicall('logIn', formInfo).then((res) => {
                 dispatch(setUserData(res.data))
-                if(res?.redirect){
+                if (res?.redirect) {
                     redirect(res.redirectTo)
                 }
             })

@@ -5,7 +5,7 @@ const initialState = {
 export const roomsReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ActionTypes.SET_ALL_ROOMS:
-            return { ...state,rooms:payload }
+            return { ...state, rooms: payload }
         default:
             return state
     }
@@ -14,7 +14,7 @@ export const roomsReducer = (state = initialState, { type, payload }) => {
 export const currentRoomReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ActionTypes.CURRENT_ROOM:
-            return { ...state,...payload }
+            return { ...state, ...payload }
         default:
             return state
     }
@@ -24,9 +24,9 @@ export const currentRoomReducer = (state = initialState, { type, payload }) => {
 export const selectedRoomReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ActionTypes.SELECTED_ROOM:
-            return { ...state, room:payload }
+            return { ...state, room: payload }
         case ActionTypes.REMOVE_SELECTED_ROOM:
-            return { ...state, room:[] }
+            return { ...state, room: [] }
         default:
             return state
     }
@@ -48,6 +48,26 @@ export const updateTalkReducer = (state = false, { type, payload }) => {
     switch (type) {
         case ActionTypes.UPDATE_TALK:
             return { ...state, ...payload }
+        default:
+            return state
+    }
+
+}
+
+export const socketReducer = (state = false, { type, payload }) => {
+    switch (type) {
+        case ActionTypes.SOCKET_DATA:
+            return { ...state, ...payload }
+        default:
+            return state
+    }
+
+}
+
+export const loadingReducer = (state = false, { type, status }) => {
+    switch (type) {
+        case ActionTypes.IS_LOADING:
+            return { status }
         default:
             return state
     }

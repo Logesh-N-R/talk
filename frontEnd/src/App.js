@@ -13,9 +13,6 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserData } from './redux/actions/talkActions';
-
-
 
 export default function App() {
   const navigate = useLocation();
@@ -36,7 +33,7 @@ export default function App() {
               <Route path="/login" exact element={<Login/>} />
               <Route path="/signup" exact element={<Signup />} />
               <Route path="/home" exact element={<Home/>} />
-              <Route path="/talk" exact element={<Talk />} />
+              {/* <Route path="/talk" exact element={<Home />} /> */}
               <Route path="*" element={<NoPage />} />
             </Routes>
         }

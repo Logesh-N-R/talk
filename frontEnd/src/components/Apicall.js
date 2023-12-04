@@ -41,4 +41,5 @@ export default function Apicall(endpoint, input) {
             toast.warn(err.message);
             return err.message;
         })
+
 }

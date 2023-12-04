@@ -3,20 +3,13 @@ import { toast } from "react-toastify";
 import Apicall from "../Apicall";
 import { useDispatch, useSelector } from "react-redux";
 import { updateTalk } from "../../redux/actions/talkActions";
-// SOC KET
-import ENV from "../../data/env"
-import io from "socket.io-client";
-// var socket;
-const socket = io.connect(ENV.serverEndPoint)
-// socket = io(ENV.serverEndPoint);
+import {socket} from '../../socket'
 
 export default function TypePanel() {
     const [typing,setTyping]= useState(false);
     const [inputVal, setInputVal] = useState('');
     const currentRoom = useSelector((state)=>state.currentRoom)
     const dispatch = useDispatch();
-    
-   
 
     function onKeyDown(e){
         if (e.key === 'Enter') {
