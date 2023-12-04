@@ -88,11 +88,9 @@ io.on("connection", (socket) => {
         socket.to(data.room._id).emit("messageReceived","new message received")
     })
     socket.on("typing",(room)=>{
-        console.log("typing")
         socket.to(room).emit("userTyping")
     })
     socket.on("stopTyping",(room)=>{
-        console.log("stop typing")
         socket.to(room).emit("userStopTyping")
     })
 })
