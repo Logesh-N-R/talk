@@ -59,6 +59,8 @@ export default function Home() {
                 dispatch(setAllRooms(res.data))
                 fetchRoomData(res.data[0]._id)
                 dispatch(currentRoom(res.data[0]))
+                socket.emit('new_room', res.data[0]._id);
+                socket.emit('join_room', res.data[0]._id)
             }
         })
     }
@@ -66,6 +68,8 @@ export default function Home() {
         dispatch(loaderSetting(true));
         dispatch(removeSelectedRoom({}))
         dispatch(currentRoom(val))
+        socket.emit('new_room', val._id);
+        socket.emit('join_room', val._id)
         fetchRoomData(val._id)
     }
 
@@ -83,11 +87,6 @@ export default function Home() {
         }
     }
 
-
-    useEffect(() => {
-        socket.emit('new_room', curRoom._id);
-        socket.emit('join_room', curRoom._id)
-    }, [])
 
     useEffect(() => {
         socket.on('messageReceived', (data) => {
