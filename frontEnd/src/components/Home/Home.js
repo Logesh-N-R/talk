@@ -57,6 +57,8 @@ export default function Home() {
             }
             if (res.status === 'success') {
                 dispatch(setAllRooms(res.data))
+                socket.emit('new_room', res.data[0]._id);
+                socket.emit('join_room', res.data[0]._id)
                 fetchRoomData(res.data[0]._id)
                 dispatch(currentRoom(res.data[0]))
             }
@@ -66,6 +68,8 @@ export default function Home() {
         dispatch(loaderSetting(true));
         dispatch(removeSelectedRoom({}))
         dispatch(currentRoom(val))
+        socket.emit('new_room', val._id);
+        socket.emit('join_room', val._id)
         fetchRoomData(val._id)
     }
 
@@ -82,12 +86,6 @@ export default function Home() {
             document.getElementById("startMsgInput").focus();
         }
     }
-
-
-    useEffect(() => {
-        socket.emit('new_room', curRoom._id);
-        socket.emit('join_room', curRoom._id)
-    }, [])
 
     useEffect(() => {
         socket.on('messageReceived', (data) => {
