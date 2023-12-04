@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import axios from "axios";
 const URL = {
-    serverEndPoint: "http://localhost:4000",
+    serverEndPoint: "https://chatter-o89b.onrender.com:4000",
     services: {
         signUp: "/signUp",
         logIn: "/logIn",
