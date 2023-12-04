@@ -65,14 +65,12 @@ const { Server } = require("socket.io");
 var cors = require('cors');
 const User = require('./models/User');
 app.use(cors({
-    origin: process.env.CLIENT_ENDPOINT,
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true
 }));
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_ENDPOINT,
         methods: ["GET", "POST"],
     },
 });
