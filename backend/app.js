@@ -17,6 +17,7 @@ const services = {
     getTalks: "/getTalks",
     sendTalk: "/sendTalk"
 }
+const path = require('path');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const session = require('express-session')
@@ -139,13 +140,30 @@ const requireAuth = (req, res, next) => {
 }
 // Middleware ends
 
-// API req starts
-app.get('/', function (req, res) {
-    res.send("NOT AUTHORIZED")
-})
-app.get('*', function (req, res) {
-    res.send("Not found");
-})
+
+
+
+
+// deployment code start
+const __dirname1 = path.resolve()
+if(process.env.NODE_ENV == 'production'){
+    app.use(express.static(path.join(__dirname1,"../frontEnd/build")));
+    
+    app.get('*',(req,res)=>{
+        res.sendFile(path.resolve(__dirname1,"../frontEnd","build","index.html"))
+    })
+
+}else{
+    // API req starts
+    app.get('/', function (req, res) {
+        res.send("NOT AUTHORIZED")
+    })
+    // app.get('*', function (req, res) {
+    //     res.send("Not found");
+    // })
+}
+
+// deployment code end
 
 // session check process
 app.post('/auth', async (req, res) => {
