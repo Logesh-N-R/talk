@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "build":"npm install --prefix backend && npm install --prefix frontEnd && npm run build --prefix frontEnd"
+    "build":"npm install  && npm install --prefix ../frontEnd && npm run build --prefix ../frontEnd"
   },
   "author": "Logesh",
   "license": "ISC",
