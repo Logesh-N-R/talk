@@ -1,5 +1,5 @@
 const env = {
-    serverEndPoint: "http://localhost:4000",
+    serverEndPoint: "https://chatter-o89b.onrender.com:4000",
 }
 
 export default env;

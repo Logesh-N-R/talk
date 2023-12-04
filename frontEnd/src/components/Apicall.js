@@ -1,7 +1,8 @@
 import { toast } from 'react-toastify';
 import axios from "axios";
+import ENV from "../data/env"
 const URL = {
-    serverEndPoint: "http://localhost:4000",
+    serverEndPoint: ENV.serverEndPoint,
     services: {
         signUp: "/signUp",
         logIn: "/logIn",
