@@ -33,7 +33,7 @@ export default function Apicall(endpoint, input) {
             if (response.data.status === "success" && response.data.msg) {
                 toast.success(`${response.data.msg}`);
             } else if (response.data.status === "error" && response.data.msg) {
-                toast.warn(`${response.data.msg}`);
+                // toast.warn(`${response.data.msg}`);
             } else if (response.data?.data) {
                 return response.data;
             }

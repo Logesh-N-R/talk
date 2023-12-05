@@ -43,6 +43,7 @@ export default function Login(props) {
         } else if (formInfo.password.length < 8) {
             toast.warn('Are you sure? password seems too short!');
         } else {
+            dispatch(loaderSetting(true));
             Apicall('logIn', formInfo).then((res) => {
                 dispatch(setUserData(res.data))
                 if (res?.redirect) {

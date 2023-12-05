@@ -246,7 +246,6 @@ app.post('/logIn', async (req, res) => {
 })
 // Logout process
 app.post('/logOut', async (req, res) => {
-    let user = await UserModel.findOne({ email });
     req.session.user = "";
     res.json(
         {
@@ -254,7 +253,6 @@ app.post('/logOut', async (req, res) => {
             redirectTo: '/login',
             status: "success",
             msg: `Bye Bye! Come back soon`,
-            data: { username, email, profile }
         })
 })
 // All users

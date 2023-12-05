@@ -1,17 +1,21 @@
 body {
-    --main_color: rgb(49, 47, 47);
-    --sec_color: rgb(204, 163, 127);
-    --big_font_size: 18px;
+     /* main changes */
+     --main_color: rgb(24, 19, 1);
+     --sec_color: rgb(42, 22, 6);
+     --contact_color: rgb(22, 20, 13);
+     /* main changes */
+
+    --big_font_size: 16px;
     --font_color: rgb(255, 255, 255);
-    --font_size: 14px;
+    --font_size: 12px;
     --font_family: monospace;
     --sec_font_color: rgb(245, 201, 201);
-    --sec_font_size: 10px;
-    --small_font_size: 8px;
-    --small_font_color: rgb(44, 43, 43);
+    --sec_font_size: 8px;
+    --small_font_size: 6px;
+    --small_font_color: rgb(227, 203, 203);
     --screen_width: 100%;
-    --form_min_width: 460px;
-    --form_min_height: 300px;
+    --form_min_width: 400px;
+    --form_min_height: 250px;
     --border_radius: 10px;
     --edge_border: 0px;
     --small_border_radius: 5px;
@@ -20,33 +24,35 @@ body {
     --top_panel_height: 10vh;
     --bottom_panel_height: 10vh;
 
-    --options_background_color : rgb(215, 196, 196);
-    --options_highlight_color : rgb(137, 100, 100);
+    --options_background_color : rgb(21, 37, 34);
+    --options_highlight_color : rgb(6, 103, 74);
 
     --Typing_color: rgb(4, 184, 255);
-    --contact_color: rgb(235, 208, 208);
+   
     --chat_height: 10vh;
 
-    --Active_person_color: rgb(2, 2, 63);
-    --Other_person_color: rgb(75, 6, 75);
+    --Active_person_color: rgb(13, 13, 46);
+    --Other_person_color: rgb(69, 2, 69);
 
-    --Activer_person_bubble: rgb(244, 193, 244);
-    --Other_person_bubble: rgb(185, 185, 238);
+    --Activer_person_bubble: rgb(69, 2, 69);
+    --Other_person_bubble: rgb(24, 24, 49);
 
-    --main_btn_color: rgb(228, 228, 119);
-    --main_btn_font_color: rgb(46, 99, 113);
+    --main_btn_color: rgb(2, 71, 108);
+    --main_btn_font_color: rgb(222, 228, 230);
     --main_btn_height: 30px;
 
-    --sec_btn_color: rgb(79, 79, 12);
-    --sec_btn_font_color: rgb(15, 162, 203);
-    --shadow_size: 0 0 15px 0 rgb(126, 126, 125);
+    --sec_btn_color: rgb(221, 135, 44);
+    --sec_btn_font_color: rgb(210, 236, 243);
+    --shadow_size: 0 0 15px 0 rgb(150, 150, 144);
 
     --leftPanel_width: 30%;
     --rightPanel_width: 70%;
+    --default_font_color:white;
 }
 
 * {
     box-sizing: border-box;
+    color:var(--default_font_color);
     padding: 0px;
     margin: 0px;
     font-family: var(--font_family);
@@ -246,6 +252,7 @@ body {
 
 .UserCont {
     background-color: var(--contact_color);
+    color: var(--sec_font_color);
     border-bottom: 1px solid black;
     border-radius: var(--border_radius);
     box-shadow: var(--shadow_size);
@@ -298,7 +305,7 @@ body {
 
 .UserName {
     font-size: var(--big_font_size);
-    font-weight: 600;
+    font-weight: 900;
 }
 
 .UserMsg {
@@ -337,7 +344,7 @@ body {
     height: 20px;
     width: 50px;
     position: absolute;
-    top: calc(var(--chat_height) / 2 );
+    top: calc(var(--chat_height) / 2 - 10px);
     right: 5px;
 }
 .UserMsgOptions:hover{
@@ -383,7 +390,7 @@ body {
 }
 
 .AddUser {
-    background-color: var(--main_color);
+    background-color: var(--sec_btn_color);
     padding: 10px;
     border-radius: 20%;
     position: absolute;
@@ -394,7 +401,7 @@ body {
 
 .AddUser:hover {
     transform: scale(1.1);
-    background-color: var(--sec_btn_color);
+    background-color: var(--main_btn_color);
 }
 
 .addUserInput {
@@ -426,13 +433,19 @@ body {
 .multiSelectContainer {
     width: 300px !important;
 }
+.optionContainer{
+    background-color: var(--main_color) !important;
+}
 
-.highlightOption {
+.highlightOption{
+    background-color: var(--sec_color) !important;
+}
+.multiSelectContainer li:hover{
     background-color: var(--sec_color) !important;
 }
 
 .chip {
-    background-color: var(--sec_color) !important;
+    background-color: var(--sec_btn_color) !important;
 }
 
 .selectLable {
@@ -562,7 +575,10 @@ body {
 
 .TalkBodyContainer {
     height: calc(100vh - var(--top_panel_height) - var(--bottom_panel_height));
-    background-image: url(../src/images/pattern.svg);
+    background-image: url(../src/images/chatBG.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size:cover;
     width: var(--rightPanel_width);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -697,7 +713,7 @@ body {
 }
 
 .TypePanelContainer {
-    background-image: url(../src/images/darkpattern.svg);
+    /* background-image: url(../src/images/); */
     width: var(--rightPanel_width);
     align-items: center;
     justify-content: center;
@@ -720,7 +736,9 @@ body {
     margin: 10px;
     padding: 10px;
     text-align: end;
-    background-color: var(--sec_color);
+    color: black;
+    font-weight: 600;
+    /* background-color: var(--sec_color); */
     border-radius: var(--small_border_radius);
     outline: none;
     border: none;
@@ -881,7 +899,9 @@ body {
 
     body {
         --screen_width: 100%;
-        --chat_height: 10vh;
+        --chat_height: 8vh;
+        --top_panel_height: 8vh;
+        --bottom_panel_height: 8vh;
 
         --leftPanel_width: 50%;
         --rightPanel_width: 50%;
@@ -902,6 +922,11 @@ body {
         border-radius: 0px;
     }
 
+    .TalkBodyContainer{
+        padding-bottom: 30px;
+        /* height: calc(100vh - var(--top_panel_height) - var(--bottom_panel_height) - 30px); */
+    }
+    
 }
 
 @media screen and (max-width: 900px) {
@@ -913,6 +938,8 @@ body {
 
 @media screen and (max-width: 600px) {
     body {
+        --top_panel_height: 8vh;
+        --bottom_panel_height: 8vh;
         --leftPanel_width: 0%;
         --rightPanel_width: 100%;
     }

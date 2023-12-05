@@ -1,6 +1,7 @@
 import ListTwoToneIcon from '@mui/icons-material/ListTwoTone';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
+import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone';
 import TuneTwoToneIcon from '@mui/icons-material/TuneTwoTone';
 import PersonAddAltTwoToneIcon from '@mui/icons-material/PersonAddAltTwoTone';
 import AddCardIcon from '@mui/icons-material/AddCard';
@@ -268,8 +269,7 @@ export default function Home() {
                         roomInput.userId = choosedOptions
                         Apicall('addUser', roomInput).then((res) => {
                             if (res?.status === "success") {
-                                console.log(res)
-                                fetchRooms(false)
+                                fetchRooms()
                                 dispatch(currentRoom(res.data))
                                 dispatch(appTypeSettings({ current: "TALK", screen: getWindowDimensions() }))
                                 dispatch(loaderSetting(false));
@@ -290,8 +290,7 @@ export default function Home() {
 
                         Apicall('removeUser', roomInput).then((res) => {
                             if (res?.status === "success") {
-                                console.log(res)
-                                fetchRooms(false)
+                                fetchRooms()
                                 dispatch(currentRoom(res.data))
                                 dispatch(appTypeSettings({ current: "TALK", screen: getWindowDimensions() }))
                                 dispatch(loaderSetting(false));
@@ -306,9 +305,6 @@ export default function Home() {
             }
         }
     }
-    function renameGroup() { }
-    function addUserToGroup() { }
-    function removeGroupUser() { }
 
     // Extra popup remove function
     function allMenuClose() {
@@ -317,6 +313,14 @@ export default function Home() {
         setOptionFlag({ status: false })
         setEditOptionFlag({ status: false })
         multiSelectRef.current?.resetSelectedValues([]);
+    }
+
+    // log out
+    function logout(){
+        Apicall('logOut', {}).then((res) => {
+            toast.success(`See you soon ${userData.username}`);
+            navigate("/login")
+        })
     }
 
     const userContRen = rooms ? rooms.map((x) => {
@@ -359,6 +363,7 @@ export default function Home() {
                     {/* <div className="options"><ListTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div> */}
                     <div className="title">{userData.username}'s Messages</div>
                     {/* <div className="search"><SearchIcon sx={{ fontSize: 40, color: "white" }} /></div> */}
+                    <div className="search" onClick={logout} title='Log out'><ManageAccountsTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div>
                 </div>
                 <div className="HomebodyCont">
                     {userContRen}
@@ -373,7 +378,7 @@ export default function Home() {
 
 
             {/* START CHAT AND GROUP CREATION */}
-            <div className="AddUser" onClick={() => addContact('activate')} title="Add contact">
+            <div className={current == "TALK"?"displayNone AddUser":"AddUser"} onClick={() => addContact('activate')} title="Add contact">
                 <PersonAddAltTwoToneIcon sx={{ fontSize: 20, color: "grey" }} />
             </div>
             {smallMenu &&
@@ -401,6 +406,7 @@ export default function Home() {
                         selectionLimit={!startTalkFlag ? -1 : 1}
                         ref={multiSelectRef}
                         placeholder="Search for users"
+                        closeOnSelect
                         showCheckbox
                         displayValue="username" // Property name to display in the dropdown options
                     />
@@ -436,6 +442,7 @@ export default function Home() {
                             ref={multiSelectRef}
                             placeholder="Search for users"
                             showCheckbox
+                            closeOnSelect
                             displayValue="username" // Property name to display in the dropdown options
                         />
                     </div>
