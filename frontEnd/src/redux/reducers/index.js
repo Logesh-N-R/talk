@@ -1,5 +1,5 @@
 import {combineReducers} from 'redux'
-import { roomsReducer,selectedRoomReducer,currentRoomReducer, setUserReducer, updateTalkReducer, socketReducer, loadingReducer, appTypeReducer } from './talkReducer'
+import { roomsReducer,selectedRoomReducer,currentRoomReducer, setUserReducer, updateTalkReducer, socketReducer, loadingReducer, appTypeReducer, updatedChatReducer } from './talkReducer'
 
 export const rootReducer = combineReducers({
     allRooms:roomsReducer,
@@ -9,6 +9,7 @@ export const rootReducer = combineReducers({
     updateTalk:updateTalkReducer,
     socket:socketReducer,
     isLoading:loadingReducer,
-    appType:appTypeReducer
+    appType:appTypeReducer,
+    updatedChat:updatedChatReducer
 
 })

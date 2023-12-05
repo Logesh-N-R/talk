@@ -86,7 +86,9 @@ io.on("connection", (socket) => {
         socket.join(data);
     })
     socket.on("new_msg",(data)=>{
-        socket.to(data.room._id).emit("messageReceived","new message received")
+        var output = data.room._id
+        console.log("selected :",output)
+        socket.to(data.room._id).emit("messageReceived",{room:output})
     })
     socket.on("typing",(room)=>{
         socket.to(room).emit("userTyping")

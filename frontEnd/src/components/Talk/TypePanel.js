@@ -2,14 +2,17 @@ import { useEffect, useState } from "react"
 import { toast } from "react-toastify";
 import Apicall from "../Apicall";
 import { useDispatch, useSelector } from "react-redux";
-import { updateTalk } from "../../redux/actions/talkActions";
+import { loaderSetting, removeUpdatedChats, selectedRoom, setAllRooms, updateTalk } from "../../redux/actions/talkActions";
 import {socket} from '../../socket'
+import { useNavigate } from "react-router";
 
 export default function TypePanel() {
     const [typing,setTyping]= useState(false);
     const [inputVal, setInputVal] = useState('');
+    const updatedChat = useSelector((state) => state.updatedChat);
     const currentRoom = useSelector((state)=>state.currentRoom)
     const dispatch = useDispatch();
+    const navigate = useNavigate()
 
     function onKeyDown(e){
         if (e.key === 'Enter') {
@@ -25,7 +28,11 @@ export default function TypePanel() {
             roomId:currentRoom._id,
             content:val
         }).then((res) => {
+            if (res?.redirect) {
+                navigate(res.redirectTo)
+            }
             if (res?.status === 'success') {
+                fetchRoomData()
                 dispatch(updateTalk(true))
                 socket.emit('new_msg',res.data)
             }
@@ -60,6 +67,19 @@ export default function TypePanel() {
             }
         },timer)
             
+    }
+    const fetchRoomData = async () => {
+        Apicall('getMsg', { roomId: currentRoom._id }).then((res) => {
+            if (res?.redirect) {
+                navigate(res.redirectTo)
+            }
+            if (res.status === 'success' && res.data) {
+                let removeUpdated = updatedChat.filter(item => item !== currentRoom._id)
+                dispatch(removeUpdatedChats(removeUpdated))
+                dispatch(selectedRoom(res.data))
+                dispatch(loaderSetting(false));
+            }
+        })
     }
     
     return (<div className="TypePanelContainer">

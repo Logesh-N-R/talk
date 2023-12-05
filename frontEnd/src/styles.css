@@ -12,7 +12,7 @@ body {
     --sec_font_color: rgb(245, 201, 201);
     --sec_font_size: 8px;
     --small_font_size: 6px;
-    --small_font_color: rgb(227, 203, 203);
+    --small_font_color: rgb(205, 218, 138);
     --screen_width: 100%;
     --form_min_width: 400px;
     --form_min_height: 250px;
@@ -317,7 +317,7 @@ body {
     font-size: var(--font_size);
 }
 
-.UserMsgCount {
+.UserMsgCount,.UserMsgCount1 {
     justify-content: center;
     align-items: center;
     display: flex;
@@ -332,6 +332,15 @@ body {
     /* top: calc(var(--chat_height) / 2 - 10px); */
     top:3px;
     right: 3px;
+}
+.UserMsgCount1{
+    right: 0px;
+    top:calc(var(--top_panel_height) / 2)
+}
+.timeStamp{
+    width: 100px;
+    color: var(--small_font_color);
+    font-size: var(--small_font_size);
 }
 .UserMsgOptions{
     justify-content: center;
@@ -389,6 +398,24 @@ body {
     transition: 3s all;
 }
 
+.Logout{
+    font-size: var(--small_font_size);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--sec_btn_color);
+    border-radius: 20%;
+    cursor: pointer;
+    margin: 5px;
+    padding: 5px;
+}
+.latestMsg{
+    font-size: var(--font_size);
+}
+.latestUserName{
+    color: var(--sec_btn_color);
+}
+
 .AddUser {
     background-color: var(--sec_btn_color);
     padding: 10px;
@@ -399,7 +426,7 @@ body {
     cursor: pointer;
 }
 
-.AddUser:hover {
+.AddUser:hover ,.Logout:hover {
     transform: scale(1.1);
     background-color: var(--main_btn_color);
 }
@@ -656,8 +683,8 @@ body {
 
 .talkContent {
     word-wrap: break-word;
-    margin: 2px 5px;
     max-width: 50vw;
+    padding: 10px;
 }
 
 .talkContentMore {
@@ -849,8 +876,17 @@ body {
 }
 
 .userTitileLableSmall {
-    font-size: var(--small_font_size);
+    position: absolute;
+    top:3px;
+    font-size: var(--sec_font_size);
     font-weight: 900;
+}
+.ActivePerson>.userTitileLableSmall{
+    right: 3px;
+}
+
+.OtherPerson>.userTitileLableSmall{
+    left: 3px;
 }
 
 .UserInputText {
@@ -861,6 +897,7 @@ body {
     padding: 5px;
     transition: var(--transition);
     border-radius: var(--small_border_radius);
+    color: black;
 }
 
 .UserInputText:hover {

@@ -54,3 +54,15 @@ export const appTypeSettings = (data) => {
         payload: data,
     }
 }
+export const updatedChats = (data) => {
+    return {
+        type: ActionTypes.UPDATED_CHAT,
+        payload: data,
+    }
+}
+export const removeUpdatedChats = (data) => {
+    return {
+        type: ActionTypes.REMOVE_UPDATED_CHAT,
+        payload: data,
+    }
+}

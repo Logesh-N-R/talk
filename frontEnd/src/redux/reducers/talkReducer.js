@@ -82,3 +82,15 @@ export const appTypeReducer = (state = {}, { type, payload }) => {
     }
 
 }
+export const updatedChatReducer = (state = [], { type, payload }) => {
+    switch (type) {
+        case ActionTypes.UPDATED_CHAT:
+            let unique = [...new Set([...state,payload])];
+            return unique;
+        case ActionTypes.REMOVE_UPDATED_CHAT:
+            return payload;
+        default:
+            return state
+    }
+
+}

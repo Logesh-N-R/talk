@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react"
 import Apicall from '../Apicall';
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from 'react-redux';
-import { selectedRoom, setAllRooms, currentRoom, removeSelectedRoom, socketData, setUserData, updateTalk, loaderSetting, appTypeSettings } from '../../redux/actions/talkActions';
+import { selectedRoom, setAllRooms, currentRoom, removeSelectedRoom, socketData, setUserData, updateTalk, loaderSetting, appTypeSettings, updatedChats, removeUpdatedChats } from '../../redux/actions/talkActions';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Multiselect from 'multiselect-react-dropdown';
 
@@ -18,7 +18,9 @@ import Talk from '../Talk/Talk';
 
 
 export default function Home() {
+    const [newMessage, setNewMessage] = useState(false);
     const rooms = useSelector((state) => state.allRooms.rooms);
+    const updatedChat = useSelector((state) => state.updatedChat);
     const curRoom = useSelector((state) => state.currentRoom)
     const userData = useSelector((state) => state.user);
     const updatePage = useSelector((state) => state.updateTalk)
@@ -38,6 +40,10 @@ export default function Home() {
         }
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
+        if (rooms?.length > 0) {
+            dispatch(currentRoom(rooms[0]))
+        }
+
         return () => {
             socket.off('connect', onConnect);
             socket.off('disconnect', onDisconnect);
@@ -47,6 +53,12 @@ export default function Home() {
     useEffect(() => {
         socket.on('messageReceived', (data) => {
             dispatch(updateTalk(true))
+            if (data.room == curRoom._id) {
+                fetchRoomData(data.room)
+            } else {
+                dispatch(updatedChats(data.room))
+                setNewMessage(true)
+            }
         })
     })
 
@@ -63,7 +75,9 @@ export default function Home() {
 
     useEffect(() => {
         fetchRooms()
-        fetchRoomData(curRoom._id)
+        if (rooms && curRoom?._id === rooms[0]._id) {
+            fetchRoomData(curRoom._id)
+        }
     }, [updatePage]);
 
     function getWindowDimensions() {
@@ -82,14 +96,10 @@ export default function Home() {
             }
             if (res.status === 'success') {
                 dispatch(setAllRooms(res.data))
-                socket.emit('new_room', res.data[0]._id);
-                socket.emit('join_room', res.data[0]._id)
-                if (updateCurrentRoom) {
-                    fetchRoomData(res.data[0]._id)
-                    dispatch(currentRoom(res.data[0]))
-                }
-                socket.emit('new_room', res.data[0]._id);
-                socket.emit('join_room', res.data[0]._id)
+                res.data.forEach(element => {
+                    socket.emit('join_room', element._id)
+                });
+                dispatch(loaderSetting(false));
             }
         })
     }
@@ -100,6 +110,8 @@ export default function Home() {
                 navigate(res.redirectTo)
             }
             if (res.status === 'success' && res.data) {
+                let removeUpdated = updatedChat.filter(item => item !== id)
+                dispatch(removeUpdatedChats(removeUpdated))
                 dispatch(selectedRoom(res.data))
                 dispatch(loaderSetting(false));
             }
@@ -111,8 +123,6 @@ export default function Home() {
         dispatch(removeSelectedRoom({}))
         dispatch(appTypeSettings({ current: "TALK", screen: getWindowDimensions() }))
         dispatch(currentRoom(val))
-        socket.emit('new_room', val._id);
-        socket.emit('join_room', val._id)
         fetchRoomData(val._id)
     }
 
@@ -316,14 +326,20 @@ export default function Home() {
     }
 
     // log out
-    function logout(){
+    function logout() {
         Apicall('logOut', {}).then((res) => {
             toast.success(`See you soon ${userData.username}`);
             navigate("/login")
         })
     }
-
+    const dateOption = {
+        dateStyle: 'short',
+        timeStyle: 'short',
+        timeZone: 'Asia/Kolkata',
+    }
     const userContRen = rooms ? rooms.map((x) => {
+
+        let currentDate = x.latestMsg && new Date(x.latestMsg.createdAt).toLocaleString('en-IN', dateOption)
         return (
             <div className="UserCont" key={x._id} onClick={() => setCurrentRoom(x)}>
                 <div className="UserDP" style={{
@@ -334,11 +350,25 @@ export default function Home() {
                     <div className='UserName'> {x.isGrp ? x.roomName : x.users.filter((user) => user._id !== userData._id)[0].username}
                     </div>
                     {x.latestMsg &&
-                        <div className='UserMsg'>{x.latestMsg.messageFrom.username} : {x.latestMsg.message} on {x.latestMsg.createdAt}
+                        <div className='UserMsg'>
+                            <span className='latestUserName'>{x.latestMsg.messageFrom.username} : </span>
+                            {
+                                x.latestMsg.message &&
+                                <span className='latestMsg'>{x.latestMsg.message}</span>
+                            }
+
                         </div>
                     }
+                    {
+                        currentDate &&
+                        <div className='timeStamp'>{currentDate}</div>
+                    }
                 </div>
-                <div className="UserMsgCount">new</div>
+
+                {
+                    updatedChat?.includes(x._id) && <div className="UserMsgCount">new</div>
+                }
+
                 {x.isGrp &&
                     <div className="UserMsgOptions" onClick={(e) => optionsMenu(e, x._id)}>
                         <TuneTwoToneIcon sx={{ fontSize: 20, color: "black" }} />
@@ -360,10 +390,14 @@ export default function Home() {
         <div className={(screen && screen.width < 700) ? "fullSize HomeContTotal" : "HomeContTotal"}>
             <div className={(screen && screen.width < 700 && current == "TALK") ? "displayNone" : "HomeCont"}>
                 <div className="HomeTopCont">
-                    {/* <div className="options"><ListTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div> */}
                     <div className="title">{userData.username}'s Messages</div>
+                    <div className='Logout'>
+                        <div className="search" onClick={logout} title='Log out'><ManageAccountsTwoToneIcon sx={{ fontSize: 26, color: "white" }} /></div>
+                        <div>Logout</div>
+                    </div>
+                    {/* <div className="options"><ListTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div> */}
                     {/* <div className="search"><SearchIcon sx={{ fontSize: 40, color: "white" }} /></div> */}
-                    <div className="search" onClick={logout} title='Log out'><ManageAccountsTwoToneIcon sx={{ fontSize: 40, color: "white" }} /></div>
+                    {/* {newMessage &&  <div className="UserMsgCount1">new</div>} */}
                 </div>
                 <div className="HomebodyCont">
                     {userContRen}
@@ -378,7 +412,7 @@ export default function Home() {
 
 
             {/* START CHAT AND GROUP CREATION */}
-            <div className={current == "TALK"?"displayNone AddUser":"AddUser"} onClick={() => addContact('activate')} title="Add contact">
+            <div className={(current == "TALK" && screen && screen.width < 700) ? "displayNone AddUser" : "AddUser"} onClick={() => addContact('activate')} title="Add contact">
                 <PersonAddAltTwoToneIcon sx={{ fontSize: 20, color: "grey" }} />
             </div>
             {smallMenu &&
@@ -453,6 +487,5 @@ export default function Home() {
                 </div>
             </div>
             {/* RENAME, Add users, REMOVE USER */}
-
         </div>)
 }
