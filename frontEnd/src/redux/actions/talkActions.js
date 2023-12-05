@@ -48,3 +48,9 @@ export const loaderSetting = (load) => {
         status: load,
     }
 }
+export const appTypeSettings = (data) => {
+    return {
+        type: ActionTypes.IS_MOBILE,
+        payload: data,
+    }
+}

@@ -6,5 +6,6 @@ export const ActionTypes = {
     SET_USER:"SET_USER",
     UPDATE_TALK:"UPDATE_TALK",
     SOCKET_DATA:"SOCKET_DATA",
-    IS_LOADING:"IS_LOADING"
+    IS_LOADING:"IS_LOADING",
+    IS_MOBILE:"IS_MOBILE"
 }

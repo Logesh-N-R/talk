@@ -1,6 +1,6 @@
 body {
-    --main_color: rgb(57, 55, 55);
-    --sec_color: rgb(173, 155, 138);
+    --main_color: rgb(49, 47, 47);
+    --sec_color: rgb(204, 163, 127);
     --big_font_size: 18px;
     --font_color: rgb(255, 255, 255);
     --font_size: 14px;
@@ -19,6 +19,9 @@ body {
     --slow_transition: 1s all;
     --top_panel_height: 10vh;
     --bottom_panel_height: 10vh;
+
+    --options_background_color : rgb(215, 196, 196);
+    --options_highlight_color : rgb(137, 100, 100);
 
     --Typing_color: rgb(4, 184, 255);
     --contact_color: rgb(235, 208, 208);
@@ -48,7 +51,8 @@ body {
     margin: 0px;
     font-family: var(--font_family);
 }
-.Loader{
+
+.Loader {
     position: fixed;
     display: flex;
     align-items: center;
@@ -59,7 +63,8 @@ body {
     height: 100vh;
     background-color: rgba(152, 148, 148, 0.619);
 }
-.loading{
+
+.loading {
     width: 290px;
     height: 50px;
 }
@@ -71,71 +76,83 @@ body {
     width: 100px;
     height: 100px;
     color: #fff;
-  }
-    .loader:before,
-    .loader:after {
-      content: '';
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: inherit;
-      height: inherit;
-      border-radius: 50%;
-      transform: rotateX(70deg);
-      animation: 1s spin linear infinite;
-    }
-    .loader:after {
-      color: #FF3D00;
-      transform: rotateY(70deg);
-      animation-delay: .4s;
-    }
+}
 
-  @keyframes rotate {
+.loader:before,
+.loader:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+    transform: rotateX(70deg);
+    animation: 1s spin linear infinite;
+}
+
+.loader:after {
+    color: #FF3D00;
+    transform: rotateY(70deg);
+    animation-delay: .4s;
+}
+
+@keyframes rotate {
     0% {
-      transform: translate(-50%, -50%) rotateZ(0deg);
+        transform: translate(-50%, -50%) rotateZ(0deg);
     }
-    100% {
-      transform: translate(-50%, -50%) rotateZ(360deg);
-    }
-  }
 
-  @keyframes rotateccw {
+    100% {
+        transform: translate(-50%, -50%) rotateZ(360deg);
+    }
+}
+
+@keyframes rotateccw {
     0% {
-      transform: translate(-50%, -50%) rotate(0deg);
+        transform: translate(-50%, -50%) rotate(0deg);
     }
-    100% {
-      transform: translate(-50%, -50%) rotate(-360deg);
-    }
-  }
 
-  @keyframes spin {
+    100% {
+        transform: translate(-50%, -50%) rotate(-360deg);
+    }
+}
+
+@keyframes spin {
+
     0%,
     100% {
-      box-shadow: .5em 0px 0 0px currentcolor;
+        box-shadow: .5em 0px 0 0px currentcolor;
     }
+
     12% {
-      box-shadow: .5em .5em 0 0 currentcolor;
+        box-shadow: .5em .5em 0 0 currentcolor;
     }
+
     25% {
-      box-shadow: 0 .5em 0 0px currentcolor;
+        box-shadow: 0 .5em 0 0px currentcolor;
     }
+
     37% {
-      box-shadow: -.5em .5em 0 0 currentcolor;
+        box-shadow: -.5em .5em 0 0 currentcolor;
     }
+
     50% {
-      box-shadow: -.5em 0 0 0 currentcolor;
+        box-shadow: -.5em 0 0 0 currentcolor;
     }
+
     62% {
-      box-shadow: -.5em -.5em 0 0 currentcolor;
+        box-shadow: -.5em -.5em 0 0 currentcolor;
     }
+
     75% {
-      box-shadow: 0px -.5em 0 0 currentcolor;
+        box-shadow: 0px -.5em 0 0 currentcolor;
     }
+
     87% {
-      box-shadow: .5em -.5em 0 0 currentcolor;
+        box-shadow: .5em -.5em 0 0 currentcolor;
     }
-  }
+}
 
 
 .NotFound {
@@ -180,26 +197,15 @@ body {
     font-size: var(--big_font_size);
 }
 
-.startTalkCont {
-    background-color: var(--main_color);
-    max-width: 600px;
-    min-width: 350px;
-    max-height: 300px;
-    position: absolute;
-    border-radius: var(--border_radius);
-    box-shadow: var(--shadow_size);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-}
-
 .btnCont {
     display: flex;
     align-items: center;
 }
 
+.fullSize {
+    --leftPanel_width: 100%;
+    --rightPanel_width: 100%;
+}
 
 .HomeCont {
     width: var(--leftPanel_width);
@@ -210,8 +216,6 @@ body {
 
 .TalkContent {
     width: var(--rightPanel_width);
-    padding: 10px;
-    /* outline: 100px solid black; */
 }
 
 .HomeTopCont {
@@ -257,8 +261,9 @@ body {
 }
 
 .UserCont:hover {
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
     cursor: pointer;
+    background-color: var(--options_background_color);
 
 }
 
@@ -317,26 +322,152 @@ body {
     height: 20px;
     width: 20px;
     position: absolute;
-    top: calc(var(--chat_height) / 2 - 10px);
-    right: 20px;
+    /* top: calc(var(--chat_height) / 2 - 10px); */
+    top:3px;
+    right: 3px;
+}
+.UserMsgOptions{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: var(--small_font_size);
+    color: white;
+    font-weight: 600;
+    /* background-color: var(--main_btn_color); */
+    height: 20px;
+    width: 50px;
+    position: absolute;
+    top: calc(var(--chat_height) / 2 );
+    right: 5px;
+}
+.UserMsgOptions:hover{
+    transform: scale(1.2);
+}
+.optionsCont{
+    position: absolute;
+    width: 150px;
+    z-index: 100;
+    padding: 2px;
+    top:10px;
+    right:10px;
+    background-color: var(--options_background_color);
+}
+.optionsCont>li{
+    list-style-type: none;
+    padding: 5px;
+    border: 1px solid white;
+}
+.optionsCont>li:hover{
+    background-color: var(--options_highlight_color);
+    cursor: pointer;
+}
+
+
+.startTalkCont {
+    background-color: var(--main_color);
+    max-width: 600px;
+    min-width: 350px;
+    max-height: 300px;
+    position: fixed;
+    top: calc(100vh/2 - 180px);
+    left: calc(100vw/2 - 175px);
+    border-radius: var(--border_radius);
+    box-shadow: var(--shadow_size);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 5;
+    transition: 3s all;
 }
 
 .AddUser {
-    background-color: var(--Other_person_color);
+    background-color: var(--main_color);
     padding: 10px;
-    border-radius: 50%;
+    border-radius: 20%;
     position: absolute;
-    right: 20px;
+    left: 20px;
     bottom: 20px;
     cursor: pointer;
-    transition: 1s all;
 }
 
 .AddUser:hover {
     transform: scale(1.1);
-    color: red;
-    background-color: var(--Active_person_color);
+    background-color: var(--sec_btn_color);
 }
+
+.addUserInput {
+    color: var(--font_color);
+    width: 300px;
+    padding: 10px;
+    background-color: transparent;
+    outline: none;
+    border: 1px solid white;
+    border-radius: 4px;
+}
+
+.titleContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    font-size: var(--sec_font_color);
+}
+
+.titleContainer>label {
+    padding: 10px 0px;
+}
+
+.inputField {
+    padding: 10px;
+}
+
+.multiSelectContainer {
+    width: 300px !important;
+}
+
+.highlightOption {
+    background-color: var(--sec_color) !important;
+}
+
+.chip {
+    background-color: var(--sec_color) !important;
+}
+
+.selectLable {
+    font-size: var(--font_size);
+    color: var(--font_color);
+    font-weight: 900;
+}
+
+.selectOption {
+    font-size: var(--font_size);
+    background-color: var(--options_background_color);
+    position: absolute;
+    left: 50px;
+    bottom: 50px;
+    max-width: 250px;
+    width: 10vw;
+    min-width: 150px;
+    border-radius: var(--small_border_radius);
+}
+
+.selectOption>li {
+    margin: 3px 3px;
+    /* background-color: var(--main_btn_color); */
+    font: var(--font_color);
+    cursor: pointer;
+    list-style-type: none;
+    border: 1px solid white;
+    padding: 3px;
+}
+
+.selectOption>li:hover {
+    background-color: var(--options_highlight_color);
+}
+
+
 
 .pageAnimate-enter {
     transform: translate(-50vw, -50vw) rotate(70deg);
@@ -374,11 +505,12 @@ body {
 
 .NamePanelContainer {
     width: var(--rightPanel_width);
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
     margin: 0px 20px;
     padding: 10px;
     height: var(--top_panel_height);
+    min-height: 60px;
     background-color: var(--main_color);
     display: flex;
     flex-direction: row;
@@ -386,6 +518,10 @@ body {
     position: fixed;
     top: 0px;
     border-radius: var(--edge_border) var(--edge_border) 0 0;
+}
+
+.profileDetails {
+    display: flex;
 }
 
 .NameHolder {
@@ -426,6 +562,7 @@ body {
 
 .TalkBodyContainer {
     height: calc(100vh - var(--top_panel_height) - var(--bottom_panel_height));
+    background-image: url(../src/images/pattern.svg);
     width: var(--rightPanel_width);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -560,6 +697,7 @@ body {
 }
 
 .TypePanelContainer {
+    background-image: url(../src/images/darkpattern.svg);
     width: var(--rightPanel_width);
     align-items: center;
     justify-content: center;
@@ -755,7 +893,6 @@ body {
     }
 
     .NamePanelContainer {
-
         border-radius: 0px;
     }
 
@@ -773,6 +910,7 @@ body {
         --rightPanel_width: 60%;
     }
 }
+
 @media screen and (max-width: 600px) {
     body {
         --leftPanel_width: 0%;

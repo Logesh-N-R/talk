@@ -3,13 +3,22 @@ import { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import Apicall from "../Apicall";
 import { useDispatch, useSelector } from "react-redux";
-import { loaderSetting, setUserData } from "../../redux/actions/talkActions";
+import { appTypeSettings, loaderSetting, setUserData } from "../../redux/actions/talkActions";
 
 export default function Login(props) {
     const userData = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const redirect = useNavigate();
+    
     useEffect(() => {
+        function getWindowDimensions() {
+            const { innerWidth: width, innerHeight: height } = window;
+            return {
+              width,
+              height
+            };
+          }
+        dispatch(appTypeSettings({current:"HOME",screen:getWindowDimensions()}))
         if (!userData.username) {
             dispatch(loaderSetting(false));
             Apicall('auth', {}).then((res) => {

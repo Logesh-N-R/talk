@@ -8,7 +8,7 @@ function Loader() {
     return (
         <div className={isLoading ? 'Loader' : 'displayNone'}>
             {/* <img className='loading' src={loading} alt="loading" /> */}
-            <span class="loader"></span>
+            <span className="loader"></span>
         </div>
     )
 }

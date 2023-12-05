@@ -65,6 +65,7 @@ const { Server } = require("socket.io");
 var cors = require('cors');
 const User = require('./models/User');
 app.use(cors({
+    origin:process.env.CLIENT_ENDPOINT,
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true
 }));
@@ -88,11 +89,9 @@ io.on("connection", (socket) => {
         socket.to(data.room._id).emit("messageReceived","new message received")
     })
     socket.on("typing",(room)=>{
-        console.log("typing")
         socket.to(room).emit("userTyping")
     })
     socket.on("stopTyping",(room)=>{
-        console.log("stop typing")
         socket.to(room).emit("userStopTyping")
     })
 })
@@ -268,7 +267,7 @@ app.post('/allUser', requireAuth, async (req, res) => {
             { email: { $regex: search, $options: "i" } }
         ]
     } : {};
-    const users = await UserModel.find(keyword).find({ _id: { $ne: user._id } }).select('_id username profile')
+    const users = await UserModel.find(keyword).find({ _id: { $ne: user._id } }).select('_id username email profile')
     res.json(
         {
             status: "success",
@@ -322,6 +321,7 @@ app.post('/startRoomGrp', requireAuth, async (req, res) => {
         const CreatedRoom = await RoomModel.findOne({ _id: grpRoom._id }).populate("users", "-password").populate('grpAdmin', '-password')
         res.json({
             status: "success",
+            msg:"Room created successfully",
             data: CreatedRoom
         })
     } catch (error) {
@@ -366,10 +366,13 @@ app.post('/addUser', requireAuth, async (req, res) => {
         users: { $elemMatch: { $eq: userId } }
     })
     if (isUserAlreadyExist.length <= 0) {
-        const added = await RoomModel.findByIdAndUpdate(roomId, { $push: { users: userId } }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
+        const added = await RoomModel.findByIdAndUpdate(roomId,{ users: userId }, { new: true }).populate("users", "-password").populate("grpAdmin", "-password")
 
         if (!added) {
-            throw new Error("Room Not Found!")
+            return res.json({
+                status: "error",
+                msg: "No group found"
+            })
         } else {
             return res.json({
                 status: "success",
@@ -439,20 +442,20 @@ app.post('/startRoomOOO', requireAuth, async (req, res) => {
                     data: { roomData }
                 })
         } else {
-            var roomData = {
+            var createRoomData = {
                 roomName: "private",
                 isGrp: false,
                 users: [userId, user._id]
             }
 
             try {
-                const createdRoom = await RoomModel.create(roomData);
-                const newRoomData = await RoomModel.findOne({ _id: createdRoom._id }).populate("users", "-password")
+                const createdRoom = await RoomModel.create(createRoomData);
+                const roomData = await RoomModel.findOne({ _id: createdRoom._id }).populate("users", "-password")
                 res.json(
                     {
                         status: "success",
                         msg:"Start Chatting!",
-                        data: { newRoomData }
+                        data: { roomData }
                     })
             } catch (error) {
                 throw new Error(error.message)

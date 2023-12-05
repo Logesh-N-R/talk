@@ -73,3 +73,12 @@ export const loadingReducer = (state = false, { type, status }) => {
     }
 
 }
+export const appTypeReducer = (state = {}, { type, payload }) => {
+    switch (type) {
+        case ActionTypes.IS_MOBILE:
+            return {...payload }
+        default:
+            return state
+    }
+
+}
